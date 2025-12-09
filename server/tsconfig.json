@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "public",
+    "target": "ESNext",
+    "module": "NodeNext",
+    "skipLibCheck": true,
+    "types": []
+  },
+  "exclude": ["node_modules"]
+}
