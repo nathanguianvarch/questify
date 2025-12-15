@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from "socket.io";
 
-import { userRouter } from "@/routes/user.routes";
+import { userRouter } from "./routes/user.routes";
 
 type Player = {
   socketId: string;
