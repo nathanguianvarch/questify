@@ -11,7 +11,7 @@ export default function RootLayout() {
   useEffect(() => {
     const isLogged = async () => {
       if (!(await getAccessToken())) {
-        router.replace("/spotify-connection");
+        router.replace("/login");
       }
       SplashScreen.hideAsync();
     };

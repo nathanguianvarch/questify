@@ -5,7 +5,7 @@ import { Alert } from "react-native";
 
 export const spotifyAccountURL = "https://accounts.spotify.com"
 export const spotifyApiURL = "https://api.spotify.com/v1"
-export const redirectionUri = makeRedirectUri({ scheme: "questify", path: "redirect" })
+export const redirectionUri = makeRedirectUri({ scheme: "questify", path: "login" })
 
 const encodedCredentials = btoa(`${process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID}:${process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET}`);
 export const authorizationHeader = `Basic ${encodedCredentials}`;
@@ -29,7 +29,7 @@ export const requestAccessToken = async (code: string) => {
     const result = await response.json()
     await SecureStore.setItemAsync("accessToken", result.access_token)
     await SecureStore.setItemAsync("refreshToken", result.refresh_token)
-    await SecureStore.setItemAsync("expireTokenDate", (Date.now() + result.expires_in).toString())
+    await SecureStore.setItemAsync("expireTokenDate", (Date.now() + (result.expires_in * 1000)).toString())
     await SecureStore.setItemAsync("scopeToken", result.scope)
     return true
   } else {
@@ -39,52 +39,53 @@ export const requestAccessToken = async (code: string) => {
   }
 }
 
-export const requestRefreshToken = async () => {
+const requestRefreshToken = async () => {
   const refreshToken = await SecureStore.getItemAsync("refreshToken")
   const expireTokenDate = await SecureStore.getItemAsync("expireTokenDate")
-  if (refreshToken && expireTokenDate && parseInt(expireTokenDate) < Date.now()) {
-    const bodyParams = new URLSearchParams();
-    bodyParams.append('refresh_token', refreshToken);
-    bodyParams.append('grant_type', 'refresh_token');
 
-    const response = await fetch(`${spotifyAccountURL}/api/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: bodyParams.toString()
-    })
+  if (!refreshToken || !expireTokenDate) return false
+  if (Date.now() < parseInt(expireTokenDate)) return true
 
-    if (response.ok) {
-      const result = await response.json()
-      await SecureStore.setItemAsync("accessToken", result.access_token)
-      await SecureStore.setItemAsync("refreshToken", result.refresh_token)
-      await SecureStore.setItemAsync("expireTokenDate", (Date.now() + result.expires_in).toString())
-      await SecureStore.setItemAsync("scopeToken", result.scope)
-      return true
-    } else {
-      console.log(response)
-      Alert.alert("Erreur", "Une erreur est survenue")
-      return new Error()
-    }
+  const bodyParams = new URLSearchParams()
+  bodyParams.append("grant_type", "refresh_token")
+  bodyParams.append("refresh_token", refreshToken)
+
+  const response = await fetch(`${spotifyAccountURL}/api/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": authorizationHeader
+    },
+    body: bodyParams.toString()
+  })
+
+  if (!response.ok) {
+    console.log(await response.text())
+    Alert.alert("Erreur", "Impossible de rafraîchir la session Spotify")
+    return false
   }
+
+
+  const result = await response.json()
+
+  await SecureStore.setItemAsync("accessToken", result.access_token)
+
+  if (result.refresh_token) {
+    await SecureStore.setItemAsync("refreshToken", result.refresh_token)
+  }
+
+  await SecureStore.setItemAsync(
+    "expireTokenDate",
+    (Date.now() + result.expires_in * 1000).toString()
+  )
+
+  return true
 }
 
 export const requestAccountInformations = async () => {
-  const response = await fetch(`${spotifyApiURL}/me`, {
+  return await fetchWithAuth(`${spotifyApiURL}/me`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": `Bearer ${await getAccessToken()}`
-    },
   })
-  if (response.ok) {
-    return await response.json()
-  } else {
-    console.log(await response.json())
-    Alert.alert("Erreur", "Une erreur est survenue")
-    return new Error()
-  }
 }
 
 export const getAccessToken = async () => {
@@ -93,5 +94,49 @@ export const getAccessToken = async () => {
 
 export const logout = async () => {
   await SecureStore.deleteItemAsync("accessToken")
-  router.replace("/spotify-connection")
+  router.replace("/login")
+}
+
+
+export const requestPreviewSongAudio = async (id: string) => {
+  const response = await fetch(`https://open.spotify.com/embed/track/${id}`)
+  const result = await response.text()
+  const previewUrl = result.split('"audioPreview":{"url":"')[1].split('"')[0]
+  return previewUrl
+}
+
+export const requestSongInfos = async (id: string) => {
+  const result = await fetchWithAuth(`${spotifyApiURL}/tracks/${id}`, {
+    method: "GET",
+  })
+  const artists = []
+  for (const artist of result.artists) {
+    artists.push(artist.name)
+  }
+  return {
+    cover: result.album.images[0].url,
+    title: result.name,
+    artist: artists.join(", ")
+  }
+}
+
+export const fetchWithAuth = async (url: string, options: RequestInit) => {
+  await requestRefreshToken()
+
+  const accessToken = await SecureStore.getItemAsync("accessToken")
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Bearer ${accessToken}`
+    }
+  })
+  const result = await response.json()
+  if (response.ok) {
+    return result
+  } else {
+    console.log(response)
+    Alert.alert("Erreur", "Une erreur est survenue")
+    return new Error()
+  }
 }

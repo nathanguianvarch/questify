@@ -17,7 +17,7 @@ export default function Profile() {
     getUserData();
   }, []);
   return (
-    <View>
+    <View className="flex-1 bg-black">
       <NavBar
         title="Profil"
         leftContent={

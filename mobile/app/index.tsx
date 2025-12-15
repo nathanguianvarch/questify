@@ -2,7 +2,7 @@ import Input from "@/components/Input";
 import NavBar from "@/components/NavBar";
 import { UserData } from "@/types/spotify";
 import { requestServer } from "@/utils/server";
-import { logout, requestAccountInformations } from "@/utils/spotify";
+import { requestAccountInformations } from "@/utils/spotify";
 import { router } from "expo-router";
 import { CircleAlert, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -16,12 +16,45 @@ import {
   View,
 } from "react-native";
 import Bouton from "../components/Button";
+import { socket } from "../hooks/useSocket";
+
+const createRoom = () => {
+  socket.once("roomCreated", (room: any) => {
+    router.push({
+      pathname: "/room",
+      params: { roomCode: room.code },
+    });
+  });
+
+  socket.emit("createRoom");
+};
 
 export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [roomCode, setRoomCode] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
+
+  const joinRoom = () => {
+    if (!roomCode) {
+      Alert.alert("Erreur", "Veuillez entrer un code de room");
+      return;
+    }
+
+    socket.once("roomJoined", (room: any) => {
+      if (!room) {
+        Alert.alert("Erreur", "La room n'existe pas ou n'a pas pu être jointe");
+        return;
+      }
+
+      router.push({
+        pathname: "/room",
+        params: { roomCode: room.code },
+      });
+    });
+
+    socket.emit("joinRoom", { roomCode });
+  };
 
   const getServerStatus = async () => {
     setRefreshing(true);
@@ -36,8 +69,12 @@ export default function Index() {
     getUserData();
     getServerStatus();
   }, []);
+
+  useEffect(() => {
+    socket.on("connect", () => console.log("connected"));
+  }, []);
   return (
-    <View>
+    <View className="bg-black">
       <NavBar
         title="Accueil"
         leftContent={
@@ -83,14 +120,9 @@ export default function Index() {
               value={roomCode}
               onChangeText={(value) => setRoomCode(value)}
             ></Input>
-            <Bouton onClick={() => console.log("aa")}>
-              Rejoindre une partie
-            </Bouton>
+            <Bouton onClick={joinRoom}>Rejoindre une partie</Bouton>
           </View>
-          <Bouton onClick={() => console.log("aa")}>Créer une partie</Bouton>
-          <Bouton onClick={logout} backgroundColor="info">
-            Bouton de tests
-          </Bouton>
+          <Bouton onClick={createRoom}>Créer une partie</Bouton>
         </View>
       </ScrollView>
     </View>
