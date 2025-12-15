@@ -6,6 +6,7 @@ import { userRouter } from "./routes/user.routes";
 
 type Player = {
   socketId: string;
+  username: string;
 };
 type Room = {
   code: string;
@@ -29,20 +30,21 @@ app.use("/user", userRouter)
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on("createRoom", () => {
+  socket.on("createRoom", ({ username }) => {
     const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
 
     rooms[roomCode] = {
       code: roomCode,
       hostSocketId: socket.id,
-      players: [{ socketId: socket.id }],
+      players: [{ socketId: socket.id, username }],
     };
 
     socket.join(roomCode);
     socket.emit("roomCreated", rooms[roomCode]);
+    console.log(`${username} a créer la partie ${roomCode}`)
   });
 
-  socket.on("joinRoom", ({ roomCode }) => {
+  socket.on("joinRoom", ({ roomCode, username }) => {
     const room = rooms[roomCode];
 
     if (!room) {
@@ -55,10 +57,12 @@ io.on('connection', (socket) => {
     );
     if (alreadyInRoom) return;
 
-    room.players.push({ socketId: socket.id });
+    room.players.push({ socketId: socket.id, username });
     socket.join(roomCode);
 
     io.to(roomCode).emit("roomUpdated", room);
+    socket.emit("roomJoined", rooms[roomCode]);
+    console.log(`${username} a rejoint la partie ${roomCode}`)
   });
 
   socket.on("disconnect", () => {

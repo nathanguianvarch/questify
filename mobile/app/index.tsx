@@ -18,24 +18,26 @@ import {
 import Bouton from "../components/Button";
 import { socket } from "../hooks/useSocket";
 
-const createRoom = () => {
-  socket.once("roomCreated", (room: any) => {
-    router.push({
-      pathname: "/room",
-      params: { roomCode: room.code },
-    });
-  });
-
-  socket.emit("createRoom");
-};
-
 export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [roomCode, setRoomCode] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
 
+  const createRoom = async () => {
+    const username = userData?.display_name;
+    socket.once("roomCreated", (room: any) => {
+      router.push({
+        pathname: "/room",
+        params: { roomCode: room.code },
+      });
+    });
+
+    socket.emit("createRoom", { username });
+  };
+
   const joinRoom = () => {
+    const username = userData?.display_name;
     if (!roomCode) {
       Alert.alert("Erreur", "Veuillez entrer un code de room");
       return;
@@ -53,7 +55,7 @@ export default function Index() {
       });
     });
 
-    socket.emit("joinRoom", { roomCode });
+    socket.emit("joinRoom", { roomCode, username });
   };
 
   const getServerStatus = async () => {
