@@ -1,6 +1,8 @@
 import Input from "@/components/Input";
 import NavBar from "@/components/NavBar";
-import { UserData } from "@/types/spotify";
+import { usePlayer } from "@/hooks/usePlayer";
+import { useRoom } from "@/hooks/useRoom";
+import { Room } from "@/types/room";
 import { requestServer } from "@/utils/server";
 import { requestAccountInformations } from "@/utils/spotify";
 import { router } from "expo-router";
@@ -22,40 +24,43 @@ export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [roomCode, setRoomCode] = useState("");
-  const [userData, setUserData] = useState<UserData | null>(null);
+
+  const setPlayer = usePlayer((s) => s.setPlayer);
+  const player = usePlayer((s) => s.player);
+
+  const setRoom = useRoom((s) => s.setRoom);
 
   const createRoom = async () => {
-    const username = userData?.display_name;
-    socket.once("roomCreated", (room: any) => {
+    socket.once("roomCreated", (room: Room) => {
+      setRoom(room);
       router.push({
         pathname: "/room",
-        params: { roomCode: room.code },
       });
     });
 
-    socket.emit("createRoom", { username });
+    socket.emit("createRoom", { player });
   };
 
   const joinRoom = () => {
-    const username = userData?.display_name;
     if (!roomCode) {
       Alert.alert("Erreur", "Veuillez entrer un code de room");
       return;
     }
 
-    socket.once("roomJoined", (room: any) => {
+    socket.once("roomJoined", (room: Room) => {
       if (!room) {
         Alert.alert("Erreur", "La room n'existe pas ou n'a pas pu être jointe");
         return;
       }
 
+      setRoom(room);
       router.push({
         pathname: "/room",
         params: { roomCode: room.code },
       });
     });
 
-    socket.emit("joinRoom", { roomCode, username });
+    socket.emit("joinRoom", { roomCode, player });
   };
 
   const getServerStatus = async () => {
@@ -65,12 +70,12 @@ export default function Index() {
   };
 
   useEffect(() => {
-    const getUserData = async () => {
-      setUserData(await requestAccountInformations());
+    const getPlayerData = async () => {
+      setPlayer(await requestAccountInformations());
     };
-    getUserData();
+    getPlayerData();
     getServerStatus();
-  }, []);
+  }, [setPlayer]);
 
   useEffect(() => {
     socket.on("connect", () => console.log("connected"));
@@ -96,15 +101,15 @@ export default function Index() {
         }
         rightContent={
           <View className="flex-1 flex flex-row gap-5 items-center justify-end">
-            {userData && (
+            {player && (
               <TouchableOpacity
                 className="border border-white/20 rounded-full"
                 onPress={() => router.push("/profile")}
               >
-                {userData.images ? (
+                {player.cover ? (
                   <Image
                     className="h-10 w-10 rounded-full"
-                    source={{ uri: userData.images[0].url }}
+                    source={{ uri: player.cover }}
                   />
                 ) : (
                   <User color="#ffff" />

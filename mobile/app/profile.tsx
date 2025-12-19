@@ -1,21 +1,13 @@
 import Button from "@/components/Button";
 import NavBar from "@/components/NavBar";
-import { UserData } from "@/types/spotify";
-import { logout, requestAccountInformations } from "@/utils/spotify";
+import { usePlayer } from "@/hooks/usePlayer";
+import { logout } from "@/utils/spotify";
 import { router } from "expo-router";
 import { ChevronLeft, User } from "lucide-react-native";
-import { useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function Profile() {
-  const [userData, setUserData] = useState<UserData | null>(null);
-
-  useEffect(() => {
-    const getUserData = async () => {
-      setUserData(await requestAccountInformations());
-    };
-    getUserData();
-  }, []);
+  const player = usePlayer((s) => s.player);
   return (
     <View className="flex-1 bg-black">
       <NavBar
@@ -28,22 +20,22 @@ export default function Profile() {
           </View>
         }
       />
-      {userData ? (
+      {player ? (
         <View className="flex gap-4 p-4">
           <View className="flex justify-center items-center gap-4">
-            {userData.images ? (
+            {player.cover ? (
               <Image
                 className="h-32 w-32 rounded-full"
-                source={{ uri: userData.images[0].url }}
+                source={{ uri: player.cover }}
               />
             ) : (
               <User color="#ffff" />
             )}
             <View className="flex items-center">
               <Text className="text-white font-semibold text-3xl">
-                {userData.display_name}
+                {player.username}
               </Text>
-              <Text className="text-white/50">{userData.email}</Text>
+              <Text className="text-white/50">{player.email}</Text>
             </View>
           </View>
           <Button backgroundColor="error" onClick={logout}>

@@ -1,3 +1,4 @@
+import { Player } from "@/types/player";
 import { makeRedirectUri } from "expo-auth-session";
 import { router } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
@@ -82,10 +83,13 @@ const requestRefreshToken = async () => {
   return true
 }
 
-export const requestAccountInformations = async () => {
-  return await fetchWithAuth(`${spotifyApiURL}/me`, {
+export const requestAccountInformations = async (): Promise<Player> => {
+  const spotifyUser = await fetchWithAuth(`${spotifyApiURL}/me`, {
     method: "GET",
   })
+  return {
+    username: spotifyUser.display_name, cover: spotifyUser.images[0].url, ...spotifyUser
+  }
 }
 
 export const getAccessToken = async () => {

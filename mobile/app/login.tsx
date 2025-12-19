@@ -36,8 +36,6 @@ export default function SpotifyConnection() {
         } else if (response.type === "error") {
           Alert.alert("Erreur", response.params.error);
         }
-      } else {
-        Alert.alert("Une erreur est surevenue");
       }
     };
     requestAccessTokenAsync();
