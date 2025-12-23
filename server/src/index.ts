@@ -1,5 +1,6 @@
 import express from 'express';
 import { createServer } from 'http';
+import path from "path";
 import { Server } from "socket.io";
 
 import { userRouter } from "@/routes/user.routes";
@@ -20,10 +21,37 @@ app.get('/', (req, res) => {
   res.send('Server online')
 })
 
+app.use(
+  "/assets",
+  express.static(path.join(__dirname, "../assets"))
+);
+
 app.get('/share/:roomCode', (req, res) => {
   const roomCode = req.params.roomCode
+  const deepLink = `questify://room/${roomCode}`;
 
-  res.redirect(`questify://room/${roomCode}`)
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+      <meta property="og:title" content="Rejoins la partie ${roomCode} sur Questify !" />
+      <meta property="og:description" content="Code de la salle : ${roomCode}" />
+      <meta property="og:image" content="http://localhost:3000/assets/icon.png" />
+      <meta property="og:type" content="website" />
+
+      <link rel="icon" type="image/x-icon" href="https://questify.nathanguianvarch.fr/assets/icon.png">
+      <title>Questify - Partage</title>
+
+      <script>
+        window.location.href = "${deepLink}";
+      </script>
+    </head>
+    <body>
+      <p>Redirection vers l'application en cours... Si rien ne se passe, <a href="${deepLink}">cliquez ici</a>.</p>
+    </body>
+    </html>
+  `);
 })
 
 app.use("/user", userRouter)

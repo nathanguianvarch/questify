@@ -38,6 +38,8 @@ export default function Index() {
       });
     });
 
+    if (!player) return;
+
     socket.emit("createRoom", { player });
   };
 
@@ -46,6 +48,7 @@ export default function Index() {
       Alert.alert("Erreur", "Veuillez entrer un code de room");
       return;
     }
+    if (!player) return;
 
     socket.once("roomJoined", (room: Room) => {
       if (!room) {
@@ -126,6 +129,7 @@ export default function Index() {
             <Input
               value={roomCode}
               onChangeText={(value) => setRoomCode(value)}
+              maxLength={4}
             ></Input>
             <Bouton onClick={joinRoom}>Rejoindre une partie</Bouton>
           </View>

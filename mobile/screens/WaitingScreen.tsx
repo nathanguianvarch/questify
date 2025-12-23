@@ -1,4 +1,5 @@
 import Button from "@/components/Button";
+import { socket } from "@/hooks/useSocket";
 import { Crown } from "lucide-react-native";
 import {
   Image,
@@ -17,6 +18,9 @@ export default function WaitingScreen({
   room: Room;
   isHost: boolean;
 }) {
+  const startGame = () => {
+    socket.emit("startGame", { roomCode: room.code });
+  };
   return (
     <View className="m-2 flex-1 justify-between mb-10">
       <ScrollView>
@@ -51,17 +55,14 @@ export default function WaitingScreen({
         <Button
           backgroundColor="info"
           onClick={async () => {
-            await Share.share(
-              {
-                url: `http://localhost:3000/share/${room.code}`,
-              },
-              { dialogTitle: "Room" }
-            );
+            await Share.share({
+              url: `${process.env.EXPO_PUBLIC_SERVERURL}/share/${room.code}`,
+            });
           }}
         >
           Inviter des amis
         </Button>
-        {isHost && <Button>Lancer la partie</Button>}
+        {isHost && <Button onClick={startGame}>Lancer la partie</Button>}
       </View>
     </View>
   );

@@ -5,7 +5,7 @@ import WaitingScreen from "@/screens/WaitingScreen";
 import { router } from "expo-router";
 import { LogOut } from "lucide-react-native";
 import { useEffect } from "react";
-import { Alert, TouchableOpacity } from "react-native";
+import { Alert, Text, TouchableOpacity } from "react-native";
 import { Room } from "shared";
 
 export default function RoomPage() {
@@ -25,6 +25,12 @@ export default function RoomPage() {
       socket.off("roomUpdated", onRoomUpdated);
     };
   }, [updateRoom, room]);
+
+  useEffect(() => {
+    socket.once("gameStarted", (room) => {
+      updateRoom(room);
+    });
+  }, [updateRoom]);
 
   useEffect(() => {
     const onDisconnect = () => {
@@ -80,6 +86,10 @@ export default function RoomPage() {
       />
       {room.status === "waiting" ? (
         <WaitingScreen room={room} isHost={room.hostSocketId === socket.id} />
+      ) : room.status === "in_progress" ? (
+        <Text className="font-bold text-3xl text-white text-center">
+          La partie est en cours
+        </Text>
       ) : (
         ""
       )}

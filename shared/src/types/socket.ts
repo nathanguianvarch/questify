@@ -4,6 +4,7 @@ import { Room } from "./room";
 export interface ServerToClientEvents {
   roomCreated: (room: Room) => void;
   roomUpdated: (room: Room) => void;
+  roomJoined: (room: Room) => void;
   roomLeft: (room: Room) => void;
   gameStarted: (room: Room) => void;
   gameEnded: (room: Room) => void;

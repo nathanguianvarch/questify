@@ -113,7 +113,7 @@ const startGame = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: 
     question: "Question de test",
     answers: room.players.map((player) => player.username),
   }
-  io.to(roomCode).emit("gameStarted", room)
+  io.to(roomCode).emit("roomUpdated", room)
 }
 
 const endGame = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: string }) => {
