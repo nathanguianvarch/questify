@@ -1,10 +1,8 @@
 import Button from "@/components/Button";
 import NavBar from "@/components/NavBar";
-import { usePlayer } from "@/hooks/usePlayer";
 import { useRoom } from "@/hooks/useRoom";
 import { socket } from "@/hooks/useSocket";
-import { Room } from "@/types/room";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { Crown, LogOut } from "lucide-react-native";
 import { useEffect } from "react";
 import {
@@ -15,13 +13,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Room } from "shared";
 
 export default function RoomPage() {
   const room = useRoom((s) => s.room);
   const isHost = room?.hostSocketId === socket.id;
-  const params = useLocalSearchParams();
 
-  const player = usePlayer((s) => s.player);
   const updateRoom = useRoom((s) => s.updateRoom);
   const clearRoom = useRoom((s) => s.clearRoom);
 
@@ -79,7 +76,7 @@ export default function RoomPage() {
   return (
     <>
       <NavBar
-        title={`Room ${room?.code ?? params.roomCode ?? ""}`}
+        title={`Room ${room?.code}`}
         rightContent={
           <TouchableOpacity onPress={leaveRoomDialog}>
             <LogOut height={28} width={28} color="#FF6367" />

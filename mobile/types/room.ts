@@ -1,10 +1,4 @@
-import { Player } from "./player";
-
-export type Room = {
-  code: string;
-  hostSocketId: string;
-  players: Player[];
-};
+import { Room } from "shared";
 
 export type RoomStore = {
   room: Room | null;

@@ -2,7 +2,6 @@ import Input from "@/components/Input";
 import NavBar from "@/components/NavBar";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useRoom } from "@/hooks/useRoom";
-import { Room } from "@/types/room";
 import { requestServer } from "@/utils/server";
 import { requestAccountInformations } from "@/utils/spotify";
 import { router } from "expo-router";
@@ -17,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Room } from "shared";
 import Bouton from "../components/Button";
 import { socket } from "../hooks/useSocket";
 

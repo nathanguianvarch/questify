@@ -1,8 +1,8 @@
-import { Player } from "@/types/player";
 import { makeRedirectUri } from "expo-auth-session";
 import { router } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
 import { Alert } from "react-native";
+import { Player } from "shared";
 
 export const spotifyAccountURL = "https://accounts.spotify.com"
 export const spotifyApiURL = "https://api.spotify.com/v1"

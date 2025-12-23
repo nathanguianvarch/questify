@@ -1,10 +1,4 @@
-export type Player = {
-  socketId?: string;
-  host?: boolean;
-  username: string;
-  email: string;
-  cover: string;
-};
+import { Player } from "shared";
 
 export type PlayerStore = {
   player: Player | null;

@@ -4,7 +4,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "&/*": ["../shared/*"]
+      "shared": ["../shared/src"]
     }
   }
 }
