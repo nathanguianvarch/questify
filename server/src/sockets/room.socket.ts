@@ -1,4 +1,4 @@
-import { rooms } from "@/routes/state/room";
+import { rooms } from "@/state/room";
 import { Player } from "shared";
 import { Server, Socket } from "socket.io";
 
@@ -90,7 +90,6 @@ const leaveRoom = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: 
 
   if (room.players.length === 0) {
     delete rooms[roomCode];
-    return;
   }
 
   if (room.players.length < 2 && room.status === "in_progress") {

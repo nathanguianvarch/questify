@@ -20,6 +20,12 @@ app.get('/', (req, res) => {
   res.send('Server online')
 })
 
+app.get('/share/:roomCode', (req, res) => {
+  const roomCode = req.params.roomCode
+
+  res.redirect(`questify://room/${roomCode}`)
+})
+
 app.use("/user", userRouter)
 
 server.listen(3000, () => {
