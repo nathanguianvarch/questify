@@ -1,11 +1,13 @@
 import NavBar from "@/components/NavBar";
 import { useRoom } from "@/hooks/useRoom";
 import { socket } from "@/hooks/useSocket";
+import GameInProgress from "@/screens/GameInProgress";
 import WaitingScreen from "@/screens/WaitingScreen";
 import { router } from "expo-router";
 import { LogOut } from "lucide-react-native";
 import { useEffect } from "react";
 import { Alert, Text, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Room } from "shared";
 
 export default function RoomPage() {
@@ -75,7 +77,7 @@ export default function RoomPage() {
   if (!room) return;
 
   return (
-    <>
+    <SafeAreaView edges={["bottom"]} className="flex-1 bg-black">
       <NavBar
         title={`Room ${room.code}`}
         rightContent={
@@ -87,12 +89,12 @@ export default function RoomPage() {
       {room.status === "waiting" ? (
         <WaitingScreen room={room} isHost={room.hostSocketId === socket.id} />
       ) : room.status === "in_progress" ? (
-        <Text className="font-bold text-3xl text-white text-center">
-          La partie est en cours
-        </Text>
+        <GameInProgress room={room} />
+      ) : room.status === "finished" ? (
+        <Text className="text-white">Game finished</Text>
       ) : (
         ""
       )}
-    </>
+    </SafeAreaView>
   );
 }

@@ -3,8 +3,8 @@ import { createServer } from 'http';
 import path from "path";
 import { Server } from "socket.io";
 
-import { userRouter } from "@/routes/user.routes";
 import { ClientToServerEvents, ServerToClientEvents } from 'shared';
+import { spotifyRouter } from './routes/spotify.routes';
 import { initSockets } from './socket';
 
 
@@ -20,6 +20,8 @@ initSockets(io)
 app.get('/', (req, res) => {
   res.send('Server online')
 })
+
+app.use("/spotify", spotifyRouter)
 
 app.use(
   "/assets",
@@ -53,8 +55,6 @@ app.get('/share/:roomCode', (req, res) => {
     </html>
   `);
 })
-
-app.use("/user", userRouter)
 
 server.listen(3000, () => {
   console.log(`Questify server listening on port 3000`)

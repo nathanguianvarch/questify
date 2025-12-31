@@ -6,7 +6,10 @@ export type Room = {
   hostSocketId: string;
   players: Player[];
   status: RoomStatus;
+
+  questions?: GameQuestion[]
   currentQuestion?: GameQuestion;
+  answers?: Record<string, number>
 };
 
 export type RoomStatus = "waiting" | "in_progress" | "finished";

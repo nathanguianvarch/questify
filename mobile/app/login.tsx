@@ -1,9 +1,5 @@
 import Button from "@/components/Button";
-import {
-  redirectionUri,
-  requestAccessToken,
-  spotifyAccountURL,
-} from "@/utils/spotify";
+import { requestAccessToken, spotifyAccountURL } from "@/utils/spotify";
 import { useAuthRequest } from "expo-auth-session";
 import { router } from "expo-router";
 import { maybeCompleteAuthSession } from "expo-web-browser";
@@ -17,9 +13,8 @@ export default function SpotifyConnection() {
   const [, response, promptAsync] = useAuthRequest(
     {
       clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID ?? "",
-      clientSecret: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET ?? "",
       scopes: ["user-read-email", "playlist-modify-public"],
-      redirectUri: redirectionUri,
+      redirectUri: "questify://login",
       usePKCE: false,
     },
     {
@@ -29,11 +24,12 @@ export default function SpotifyConnection() {
   useEffect(() => {
     const requestAccessTokenAsync = async () => {
       if (response) {
-        if (response.type === "success") {
+        if (response.type === "success" && response.params.code) {
           if (await requestAccessToken(response.params.code)) {
+            console.log(response.params.code);
             router.replace("/");
           }
-        } else if (response.type === "error") {
+        } else if (response.type === "error" && response.params.error) {
           Alert.alert("Erreur", response.params.error);
         }
       }

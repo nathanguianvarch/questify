@@ -1,6 +1,23 @@
-import { rooms } from "@/state/room";
-import { Player } from "shared";
+import { rooms } from "@/state/room.state";
+import { GameQuestion, Player, Room } from "shared";
 import { Server, Socket } from "socket.io";
+
+const QUESTIONS: GameQuestion[] = [
+  {
+    id: 1,
+    question: "Qui est l’intrus ?",
+    answers: [],
+    correctAnswer: 2,
+    audioUrl: "https://p.scdn.co/mp3-preview/c304a8f6eef87734e1e3aeaba3239348e49b794c"
+  },
+  {
+    id: 2,
+    question: "Qui a créé la room ?",
+    answers: [],
+    correctAnswer: 1,
+    audioUrl: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3"
+  }
+];
 
 type SocketContext = {
   io: Server;
@@ -13,7 +30,8 @@ export const registerRoomSockets = (io: Server, socket: Socket) => {
   socket.on("leaveRoom", leaveRoom({ io, socket }));
 
   socket.on("startGame", startGame({ io, socket }));
-  socket.on("endGame", startGame({ io, socket }));
+  socket.on("answerQuestion", answerQuestion({ io, socket }));
+  socket.on("endGame", endGame({ io, socket }));
 
   socket.on("disconnect", () => {
     for (const roomCode in rooms) {
@@ -49,7 +67,7 @@ const createRoom = ({ io, socket }: SocketContext) => ({ player }: { player: Pla
     code: roomCode,
     hostSocketId: socket.id,
     players: [{ socketId: socket.id, ...player }],
-    status: "waiting"
+    status: "waiting",
   };
 
   socket.join(roomCode);
@@ -109,10 +127,16 @@ const startGame = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: 
   if (room.hostSocketId !== socket.id) return;
 
   room.status = "in_progress"
-  room.currentQuestion = {
-    question: "Question de test",
-    answers: room.players.map((player) => player.username),
-  }
+  room.questions = QUESTIONS.map(q => ({
+    ...q,
+    answers:
+      q.answers.length > 0
+        ? q.answers
+        : room.players.map(p => p)
+  }));
+  room.currentQuestion = room.questions[0]
+  room.answers = {};
+
   io.to(roomCode).emit("roomUpdated", room)
 }
 
@@ -124,3 +148,35 @@ const endGame = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: st
 
   io.to(roomCode).emit("gameEnded", room)
 }
+
+const answerQuestion = ({ io, socket }: SocketContext) => (
+  { roomCode, answerIndex }: { roomCode: string; answerIndex: number }
+) => {
+  const room = rooms[roomCode];
+
+  if (room.answers[socket.id] !== undefined) return;
+
+  room.answers[socket.id] = answerIndex;
+
+  if (Object.keys(room.answers).length === room.players.length) {
+    goToNextQuestion(io, room);
+  }
+};
+
+const goToNextQuestion = (io: Server, room: Room) => {
+  const questionIndex = room.questions.indexOf(room.currentQuestion)
+  console.log(questionIndex, room.questions.length)
+  if (questionIndex + 1 >= room.questions.length) {
+    room.status = "finished";
+    room.currentQuestion = undefined;
+    console.log(room)
+
+    io.to(room.code).emit("roomUpdated", room);
+    return;
+  }
+
+  room.currentQuestion = room.questions[questionIndex + 1];
+  room.answers = {};
+
+  io.to(room.code).emit("roomUpdated", room);
+};

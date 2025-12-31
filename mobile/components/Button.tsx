@@ -4,10 +4,12 @@ export default function Button({
   children,
   backgroundColor = "primary",
   onClick,
+  className = "",
 }: {
   children: string;
   backgroundColor?: string;
   onClick?: () => void;
+  className?: string;
 }) {
   if (backgroundColor === "primary") {
     backgroundColor = "#00D560";
@@ -18,7 +20,7 @@ export default function Button({
   }
   return (
     <TouchableOpacity
-      className={`bg-[${backgroundColor}] rounded-2xl px-4 py-3`}
+      className={`bg-[${backgroundColor}] rounded-2xl px-4 py-3 ${className}`}
       activeOpacity={0.7}
       style={{ backgroundColor }}
       onPress={onClick}

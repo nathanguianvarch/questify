@@ -15,5 +15,6 @@ export interface ClientToServerEvents {
   joinRoom: (payload: { roomCode: string; player: Player }) => void;
   leaveRoom: (payload: { roomCode: string; }) => void;
   startGame: (payload: { roomCode: string }) => void;
+  answerQuestion: (payload: { roomCode: string, answerIndex: number }) => void;
   endGame: (payload: { roomCode: string }) => void;
 }
