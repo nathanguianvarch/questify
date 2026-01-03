@@ -13,7 +13,7 @@ export default function SpotifyConnection() {
   const [, response, promptAsync] = useAuthRequest(
     {
       clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID ?? "",
-      scopes: ["user-read-email", "playlist-modify-public"],
+      scopes: ["user-read-email", "playlist-modify-public", "user-top-read"],
       redirectUri: "questify://login",
       usePKCE: false,
     },
@@ -26,7 +26,6 @@ export default function SpotifyConnection() {
       if (response) {
         if (response.type === "success" && response.params.code) {
           if (await requestAccessToken(response.params.code)) {
-            console.log(response.params.code);
             router.replace("/");
           }
         } else if (response.type === "error" && response.params.error) {

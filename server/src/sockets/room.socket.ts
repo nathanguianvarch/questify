@@ -33,31 +33,7 @@ export const registerRoomSockets = (io: Server, socket: Socket) => {
   socket.on("answerQuestion", answerQuestion({ io, socket }));
   socket.on("endGame", endGame({ io, socket }));
 
-  socket.on("disconnect", () => {
-    for (const roomCode in rooms) {
-      const room = rooms[roomCode];
-
-      room.players = room.players.filter(
-        (p) => p.socketId !== socket.id
-      );
-
-      if (room.hostSocketId === socket.id) {
-        room.hostSocketId = room.players[0]?.socketId;
-      }
-
-      if (room.players.length < 2 && room.status === "in_progress") {
-        room.status = "finished";
-        room.currentQuestion = undefined;
-      }
-
-
-      if (room.players.length === 0) {
-        delete rooms[roomCode];
-      } else {
-        io.to(roomCode).emit("roomUpdated", room);
-      }
-    }
-  });
+  socket.on("disconnect", () => disconnect({ io, socket }));
 }
 
 const createRoom = ({ io, socket }: SocketContext) => ({ player }: { player: Player }) => {
@@ -180,3 +156,29 @@ const goToNextQuestion = (io: Server, room: Room) => {
 
   io.to(room.code).emit("roomUpdated", room);
 };
+
+const disconnect = ({ io, socket }: SocketContext) => {
+  for (const roomCode in rooms) {
+    const room = rooms[roomCode];
+
+    room.players = room.players.filter(
+      (p) => p.socketId !== socket.id
+    );
+
+    if (room.hostSocketId === socket.id) {
+      room.hostSocketId = room.players[0]?.socketId;
+    }
+
+    if (room.players.length < 2 && room.status === "in_progress") {
+      room.status = "finished";
+      room.currentQuestion = undefined;
+    }
+
+
+    if (room.players.length === 0) {
+      delete rooms[roomCode];
+    } else {
+      io.to(roomCode).emit("roomUpdated", room);
+    }
+  }
+}
