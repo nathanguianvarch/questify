@@ -3,7 +3,7 @@ import NavBar from "@/components/NavBar";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useRoom } from "@/hooks/useRoom";
 import { requestServer } from "@/utils/server";
-import { requestAccountInformations } from "@/utils/spotify";
+import { requestAccountInformations, requestTopArtists } from "@/utils/spotify";
 import { router } from "expo-router";
 import { CircleAlert, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -40,10 +40,14 @@ export default function Index() {
 
     if (!player) return;
 
+    setRefreshing(true);
+    player.playerStats!.topArtists = await requestTopArtists("long_term", 5);
+    setRefreshing(false);
+    console.log(player);
     socket.emit("createRoom", { player });
   };
 
-  const joinRoom = () => {
+  const joinRoom = async () => {
     if (!roomCode) {
       Alert.alert("Erreur", "Veuillez entrer un code de room");
       return;
@@ -74,7 +78,11 @@ export default function Index() {
 
   useEffect(() => {
     const getPlayerData = async () => {
-      setPlayer(await requestAccountInformations());
+      const playerInformations = await requestAccountInformations();
+      const playerStats = {
+        topArtists: await requestTopArtists("long_term", 5),
+      };
+      setPlayer({ ...playerInformations, playerStats });
     };
     getPlayerData();
     getServerStatus();

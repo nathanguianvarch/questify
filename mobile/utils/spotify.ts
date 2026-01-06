@@ -68,6 +68,11 @@ export const requestAccountInformations = async () => {
   }
 }
 
+export const requestTopArtists = async (time_range: string, limit: number) => {
+  const result = await fetchWithAuth(`${serverURL}/spotify/me/top/artists?time_range=${time_range}&limit=${limit}`)
+  return result
+}
+
 export const getAccessToken = async () => {
   return await SecureStore.getItemAsync("accessToken")
 }

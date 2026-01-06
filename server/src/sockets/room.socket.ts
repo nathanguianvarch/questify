@@ -5,6 +5,7 @@ import { Server, Socket } from "socket.io";
 const QUESTIONS: GameQuestion[] = [
   {
     id: 1,
+    type: "player",
     question: "Qui est l’intrus ?",
     answers: [],
     correctAnswer: 2,
@@ -12,7 +13,8 @@ const QUESTIONS: GameQuestion[] = [
   },
   {
     id: 2,
-    question: "Qui a créé la room ?",
+    type: "artist",
+    question: "Quel est cet artiste ?",
     answers: [],
     correctAnswer: 1,
     audioUrl: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3"
@@ -103,13 +105,19 @@ const startGame = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: 
   if (room.hostSocketId !== socket.id) return;
 
   room.status = "in_progress"
-  room.questions = QUESTIONS.map(q => ({
-    ...q,
-    answers:
-      q.answers.length > 0
-        ? q.answers
-        : room.players.map(p => p)
-  }));
+  console.log(room.players[0].playerStats)
+  const questions: GameQuestion[] = [
+    {
+      id: 1,
+      type: "artist",
+      question: `Quel est cet artiste ?`,
+      answers: room.players[0].playerStats.topArtists,
+      correctAnswer: 0,
+      audioUrl: ""
+    }
+  ]
+  room.questions = questions.length >= 5 ? questions.slice(0, 5) :
+    room.questions = questions
   room.currentQuestion = room.questions[0]
   room.answers = {};
 

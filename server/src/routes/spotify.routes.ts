@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from "express";
+import { Artist } from 'shared';
 
 export const spotifyRouter = express.Router()
 
@@ -96,6 +97,36 @@ spotifyRouter.get("/me/top/tracks", async (req, res) => {
       return { id: item.id, title: item.name, artists: item.artists.map((artist: any) => artist.name), cover: item.album.images[0].url };
     });
     res.json(tracks);
+  } else {
+    res.json(await response.json()).status(response.status);
+  }
+})
+
+spotifyRouter.get("/me/top/artists", async (req, res) => {
+  const { authorization } = req.headers
+  const { time_range, limit } = req.query
+
+  let url = new URL(`${spotifyApiURL}/me/top/artists`);
+
+  url.searchParams.append("time_range", time_range.toString());
+  url.searchParams.append("limit", limit.toString());
+
+  const response = await fetch(url, {
+    headers: {
+      "Authorization": authorization
+    }
+  })
+
+  if (response.ok) {
+    const result = await response.json();
+    console.log(result.items.map((item: any) => {
+      return { id: item.id, name: item.name, cover: item.images[0].url, popularity: item.popularity };
+    }));
+
+    const artists: Artist[] = result.items.map((item: any) => {
+      return { id: item.id, name: item.name, cover: item.images[0].url, popularity: item.popularity };
+    });
+    res.json(artists);
   } else {
     res.json(await response.json()).status(response.status);
   }

@@ -1,4 +1,4 @@
-import AnswerPlayer from "@/components/AnswerPlayer";
+import Answer from "@/components/Answer";
 import { socket } from "@/hooks/useSocket";
 import type { AudioPlayer } from "expo-audio";
 import { createAudioPlayer } from "expo-audio";
@@ -138,15 +138,21 @@ export default function GameInProgress({ room }: { room: Room }) {
 
   return (
     <Animated.View className="m-2 flex-1 justify-between" style={animatedStyle}>
-      <Text className="text-center text-white font-bold text-3xl">
-        {room.currentQuestion.question}
-      </Text>
-      <View className="p-2">
+      <View>
+        <Text className="text-center text-white font-bold text-3xl">
+          {room.currentQuestion.question}
+        </Text>
+        <Text className="text-white/50 text-center text-xl font-bold">
+          {timeLeft}s
+        </Text>
+      </View>
+      <View className="p-2 flex gap-4">
         {room.currentQuestion.answers.map((value, index) => (
-          <AnswerPlayer
+          <Answer
             key={index}
-            player={value}
-            onPress={() => answerQuestion(value)}
+            type={"artist"}
+            data={value}
+            // onPress={() => answerQuestion(value)}
             state={
               answer === null
                 ? "waiting"
@@ -158,11 +164,7 @@ export default function GameInProgress({ room }: { room: Room }) {
           />
         ))}
       </View>
-      <View className="p-2 bg-white/10 mb-10">
-        <Text className="text-white text-center text-xl font-bold">
-          ⏱️ {timeLeft}s
-        </Text>
-      </View>
+      <View className="p-2 bg-white/10 rounded-3xl"></View>
     </Animated.View>
   );
 }
