@@ -87,7 +87,7 @@ export default function Answer<T extends keyof AnswerByType>({
           Haptics.selectionAsync();
           onPress?.();
         }}
-        className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between`}
+        className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between overflow-hidden`}
       >
         <View className="flex flex-row gap-3 items-center">
           <Image

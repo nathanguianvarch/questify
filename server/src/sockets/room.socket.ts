@@ -131,30 +131,36 @@ const answerQuestion = ({ io, socket }: SocketContext) => (
 
   if (room.answers[socket.id] !== undefined) return;
 
-  if (answerIndex === correctAnswerIndex) {
-    score[socket.id] = (score[socket.id] || 0) + 1;
-  }
+  room.answers[socket.id] = answerIndex;
 
-  setTimeout(() => {
-    console.log(answerIndex, correctAnswerIndex)
-    io.to(socket.id).emit("answerResult", {
-      result: answerIndex === correctAnswerIndex ? "correct" : "wrong",
-    });
-  }, 1000);
-  setTimeout(() => {
-    goToNextQuestion(io, room);
-  }, 4000);
+  const roomScore = score[room.code] || {};
+  if (answerIndex === correctAnswerIndex) {
+    roomScore[socket.id] = (roomScore[socket.id] || 0) + 1;
+  } else {
+    roomScore[socket.id] = roomScore[socket.id] || 0;
+  }
+  score[room.code] = roomScore;
+  if (Object.keys(room.answers).length >= room.players.length) {
+    setTimeout(() => {
+      io.to(room.code).emit("answerResult", {
+        result: answerIndex === correctAnswerIndex ? "correct" : "wrong",
+      });
+    }, 1000);
+
+    setTimeout(() => {
+      goToNextQuestion(io, room);
+    }, 2000);
+  }
 };
 
 const goToNextQuestion = (io: Server, room: Room) => {
   const questionIndex = room.questions.indexOf(room.currentQuestion)
-  console.log(questionIndex, room.questions.length)
   if (questionIndex + 1 >= room.questions.length) {
     room.status = "finished";
     room.currentQuestion = undefined;
-    console.log(room)
 
-    io.to(room.code).emit("roomUpdated", room);
+    const roomScore = score[room.code] || {};
+    io.to(room.code).emit("gameFinished", room, roomScore);
     return;
   }
 

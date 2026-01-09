@@ -4,11 +4,12 @@
   "type": "commonjs",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "node --import=tsx --watch src/index.ts",
+    "dev": "node --import=tsx --watch --inspect src/index.ts",
     "build": "tsc --outDir dist",
     "start": "node dist/server/src/index.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "17.2.1",
     "express": "5.1.0",
     "socket.io": "^4.8.1"

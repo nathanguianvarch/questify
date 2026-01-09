@@ -1,16 +1,20 @@
+import LeaveGameModal from "@/components/LeaveGameModal";
 import NavBar from "@/components/NavBar";
 import { useRoom } from "@/hooks/useRoom";
 import { socket } from "@/hooks/useSocket";
+import GameFinished from "@/screens/GameFinished";
 import GameInProgress from "@/screens/GameInProgress";
 import WaitingScreen from "@/screens/WaitingScreen";
 import { router } from "expo-router";
 import { LogOut } from "lucide-react-native";
-import { useEffect } from "react";
-import { Alert, Text, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Room } from "shared";
+import { PlayerScore, Room } from "shared";
 
 export default function RoomPage() {
+  const [score, setScore] = useState<PlayerScore | null>(null);
+
   const room = useRoom((s) => s.room);
 
   const updateRoom = useRoom((s) => s.updateRoom);
@@ -42,23 +46,34 @@ export default function RoomPage() {
 
     socket.on("disconnect", onDisconnect);
 
+    socket.once("gameFinished", (room, score) => {
+      updateRoom(room);
+      setScore(score);
+      console.log(room, score);
+    });
+
     return () => {
       socket.off("disconnect", onDisconnect);
+      socket.off("gameFinished");
     };
   }, [room]);
 
   const leaveRoomDialog = async () => {
-    Alert.alert("Voulez-vous vraiment quitter la partie ?", "", [
-      {
-        text: "Non",
-        style: "cancel",
-      },
-      {
-        text: "Oui",
-        onPress: leaveRoom,
-        style: "destructive",
-      },
-    ]);
+    Alert.alert(
+      "Quitter la partie",
+      "Voulez-vous vraiment quitter la partie ?",
+      [
+        {
+          text: "Non",
+          style: "cancel",
+        },
+        {
+          text: "Oui",
+          onPress: leaveRoom,
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   const leaveRoom = async () => {
@@ -78,6 +93,7 @@ export default function RoomPage() {
 
   return (
     <SafeAreaView edges={["bottom"]} className="flex-1 bg-black">
+      <LeaveGameModal />
       <NavBar
         title={`Room ${room.code}`}
         rightContent={
@@ -91,7 +107,7 @@ export default function RoomPage() {
       ) : room.status === "in_progress" ? (
         <GameInProgress room={room} />
       ) : room.status === "finished" ? (
-        <Text className="text-white">Game finished</Text>
+        score && <GameFinished room={room} score={score} />
       ) : (
         ""
       )}

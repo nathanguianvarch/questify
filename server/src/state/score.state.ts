@@ -1,1 +1,3 @@
-export const score: Record<string, number> = {};
+import { PlayerScore } from "shared";
+
+export const score: Record<string, PlayerScore> = {};

@@ -135,8 +135,12 @@ export default function GameInProgress({ room }: { room: Room }) {
       answerIndex,
     });
     socket.once("answerResult", ({ result }) => {
-      console.log(result);
       setQuestionState(result);
+      if (result === "correct") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     });
     socket.once("nextQuestion", (question) => {
       setQuestionState("unanswered");
@@ -148,16 +152,17 @@ export default function GameInProgress({ room }: { room: Room }) {
   if (!room.currentQuestion || !player) return null;
   const currentQuestion = room.currentQuestion;
   return (
-    <Animated.View className="m-2 flex-1 justify-between" style={animatedStyle}>
+    <Animated.View className="m-4 flex-1 justify-between" style={animatedStyle}>
       <View>
-        <Text className="text-center text-white font-bold text-3xl">
+        <Text className="text-white/50 text-center text-xl font-bold">
+          Question {room.questions!.indexOf(currentQuestion) + 2} sur{" "}
+          {room.questions!.length}
+        </Text>
+        <Text className="mx-2 text-white font-bold text-3xl">
           {currentQuestion.question}
         </Text>
-        <Text className="text-white/50 text-center text-xl font-bold">
-          {timeLeft}s
-        </Text>
       </View>
-      <View className="p-2 flex gap-3">
+      <View className="flex gap-3">
         {currentQuestion.answers.map((value, index) => (
           <Answer
             key={index}
@@ -168,7 +173,11 @@ export default function GameInProgress({ room }: { room: Room }) {
           />
         ))}
       </View>
-      <View className="p-2 bg-white/10 rounded-3xl"></View>
+      <View className="p-2 bg-white/10 rounded-3xl">
+        <Text className="text-white/50 text-center text-xl font-bold">
+          {timeLeft}s
+        </Text>
+      </View>
     </Animated.View>
   );
 }

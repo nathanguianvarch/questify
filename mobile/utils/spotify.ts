@@ -7,7 +7,6 @@ export const spotifyAccountURL = "https://accounts.spotify.com"
 export const spotifyApiURL = "https://api.spotify.com/v1"
 const serverURL = process.env.EXPO_PUBLIC_SERVER_URL ?? "http://localhost:3000"
 export const redirectionUri = makeRedirectUri({ scheme: "questify", path: "login" })
-
 const encodedCredentials = btoa(`${process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID}:${process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET}`);
 export const authorizationHeader = `Basic ${encodedCredentials}`;
 
@@ -42,7 +41,6 @@ const requestRefreshToken = async () => {
 
   const response = await fetch(url)
   if (!response.ok) {
-    console.log(await response.text())
     Alert.alert("Erreur", "Impossible de rafraîchir la session Spotify")
     return false
   }
@@ -113,7 +111,6 @@ export const requestSongInfos = async (id: string) => {
 export const fetchWithAuth = async (url: string, options?: RequestInit) => {
   await requestRefreshToken()
   const accessToken = await SecureStore.getItemAsync("accessToken")
-  console.log("Using access token:", accessToken)
   try {
     const response = await fetch(url, {
       ...options,
@@ -122,7 +119,6 @@ export const fetchWithAuth = async (url: string, options?: RequestInit) => {
         "Authorization": `Bearer ${accessToken}`
       }
     })
-    console.log(response)
     const result = await response.json()
     if (response.ok) {
       return result

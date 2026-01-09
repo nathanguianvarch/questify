@@ -22,7 +22,7 @@ export default function WaitingScreen({
     socket.emit("startGame", { roomCode: room.code });
   };
   return (
-    <View className="m-2 flex-1 justify-between">
+    <View className="m-4 flex-1 justify-between">
       <ScrollView>
         <View className="flex flex-col gap-2">
           {room.players.map((value, index) => (
@@ -56,7 +56,7 @@ export default function WaitingScreen({
           backgroundColor="info"
           onClick={async () => {
             await Share.share({
-              url: `${process.env.EXPO_PUBLIC_SERVERURL}/share/${room.code}`,
+              url: `${process.env.EXPO_PUBLIC_SERVER_URL}/share/${room.code}`,
             });
           }}
         >

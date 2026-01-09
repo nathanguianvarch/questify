@@ -102,7 +102,7 @@ export default function Index() {
         title="Accueil"
         leftContent={
           <View>
-            {serverOnline === null ? (
+            {refreshing ? (
               <ActivityIndicator />
             ) : !serverOnline ? (
               <TouchableOpacity

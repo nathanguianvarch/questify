@@ -40,3 +40,5 @@ export type PlayerQuestion = BaseGameQuestion & {
 };
 
 export type GameQuestion = ArtistQuestion | TrackQuestion | PlayerQuestion;
+
+export type PlayerScore = Record<string, number>
