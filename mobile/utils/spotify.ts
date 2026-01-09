@@ -73,6 +73,11 @@ export const requestTopArtists = async (time_range: string, limit: number) => {
   return result
 }
 
+export const requestTopTracks = async (time_range: string, limit: number) => {
+  const result = await fetchWithAuth(`${serverURL}/spotify/me/top/tracks?time_range=${time_range}&limit=${limit}`)
+  return result
+}
+
 export const getAccessToken = async () => {
   return await SecureStore.getItemAsync("accessToken")
 }
@@ -109,19 +114,25 @@ export const fetchWithAuth = async (url: string, options?: RequestInit) => {
   await requestRefreshToken()
   const accessToken = await SecureStore.getItemAsync("accessToken")
   console.log("Using access token:", accessToken)
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": `Bearer ${accessToken}`
-    }
-  })
-  const result = await response.json()
-  if (response.ok) {
-    return result
-  } else {
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${accessToken}`
+      }
+    })
     console.log(response)
-    Alert.alert("Erreur", "Une erreur est survenue")
-    return new Error()
+    const result = await response.json()
+    if (response.ok) {
+      return result
+    } else {
+      console.log(response)
+      Alert.alert("Erreur", "Une erreur est survenue")
+      return new Error()
+    }
+  } catch (e) {
+    console.log("Fetch error:", e)
+    throw e
   }
 }

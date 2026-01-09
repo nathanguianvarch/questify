@@ -1,4 +1,5 @@
 import Answer from "@/components/Answer";
+import { usePlayer } from "@/hooks/usePlayer";
 import { socket } from "@/hooks/useSocket";
 import type { AudioPlayer } from "expo-audio";
 import { createAudioPlayer } from "expo-audio";
@@ -11,16 +12,15 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Player, Room } from "shared";
+import { AnswerState, GameQuestion, Room } from "shared";
 
 export default function GameInProgress({ room }: { room: Room }) {
-  const [answer, setAnswer] = useState<Player | null>(null);
-  const [questionStatus, setQuestionStatus] = useState<"waiting" | "result">(
-    "waiting"
-  );
+  const [answerIndex, setAnswerIndex] = useState<number | null>(null);
+  const [questionState, setQuestionState] = useState<AnswerState>("unanswered");
 
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
+  const player = usePlayer((s) => s.player);
 
   const playerRef = useRef<AudioPlayer | null>(null);
   const audioCache = useRef<Map<string, AudioPlayer>>(new Map());
@@ -122,45 +122,49 @@ export default function GameInProgress({ room }: { room: Room }) {
     transform: [{ translateY: translateY.value }],
   }));
 
-  const answerQuestion = (value: Player) => {
-    setAnswer(value);
+  const answerQuestion = (value: GameQuestion["answers"][number]) => {
+    if (!room.currentQuestion) return;
     Haptics.selectionAsync();
+    setQuestionState("answered");
+    const answerIndex = currentQuestion.answers.findIndex(
+      (answer) => answer === value
+    );
+    setAnswerIndex(answerIndex);
     socket.emit("answerQuestion", {
       roomCode: room.code,
-      answerIndex: room.currentQuestion!.answers.indexOf(value),
+      answerIndex,
     });
-    // socket.once("answerReceived", () => {
-
-    // });
+    socket.once("answerResult", ({ result }) => {
+      console.log(result);
+      setQuestionState(result);
+    });
+    socket.once("nextQuestion", (question) => {
+      setQuestionState("unanswered");
+      setAnswerIndex(null);
+      room.currentQuestion = question;
+    });
   };
 
-  if (!room.currentQuestion) return null;
-
+  if (!room.currentQuestion || !player) return null;
+  const currentQuestion = room.currentQuestion;
   return (
     <Animated.View className="m-2 flex-1 justify-between" style={animatedStyle}>
       <View>
         <Text className="text-center text-white font-bold text-3xl">
-          {room.currentQuestion.question}
+          {currentQuestion.question}
         </Text>
         <Text className="text-white/50 text-center text-xl font-bold">
           {timeLeft}s
         </Text>
       </View>
-      <View className="p-2 flex gap-4">
-        {room.currentQuestion.answers.map((value, index) => (
+      <View className="p-2 flex gap-3">
+        {currentQuestion.answers.map((value, index) => (
           <Answer
             key={index}
-            type={"artist"}
+            type={currentQuestion.type}
             data={value}
-            // onPress={() => answerQuestion(value)}
-            state={
-              answer === null
-                ? "waiting"
-                : questionStatus === "result" &&
-                    index === room.currentQuestion?.correctAnswer
-                  ? "correct"
-                  : "wrong"
-            }
+            onPress={() => answerQuestion(value)}
+            state={answerIndex === index ? questionState : "unanswered"}
           />
         ))}
       </View>

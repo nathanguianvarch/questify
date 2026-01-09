@@ -1,3 +1,4 @@
+import { AnswerState, GameQuestion } from "./game";
 import { Player } from "./player";
 import { Room } from "./room";
 
@@ -5,6 +6,8 @@ export interface ServerToClientEvents {
   roomCreated: (room: Room) => void;
   roomUpdated: (room: Room) => void;
   roomJoined: (room: Room) => void;
+  answerResult: ({ result }: { result: AnswerState }) => void;
+  nextQuestion: (question: GameQuestion) => void;
   roomLeft: (room: Room) => void;
   gameStarted: (room: Room) => void;
   gameEnded: (room: Room) => void;

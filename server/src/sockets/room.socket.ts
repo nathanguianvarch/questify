@@ -1,25 +1,9 @@
 import { rooms } from "@/state/room.state";
+import { score } from "@/state/score.state";
 import { GameQuestion, Player, Room } from "shared";
 import { Server, Socket } from "socket.io";
 
-const QUESTIONS: GameQuestion[] = [
-  {
-    id: 1,
-    type: "player",
-    question: "Qui est l’intrus ?",
-    answers: [],
-    correctAnswer: 2,
-    audioUrl: "https://p.scdn.co/mp3-preview/c304a8f6eef87734e1e3aeaba3239348e49b794c"
-  },
-  {
-    id: 2,
-    type: "artist",
-    question: "Quel est cet artiste ?",
-    answers: [],
-    correctAnswer: 1,
-    audioUrl: "https://samplelib.com/lib/preview/mp3/sample-3s.mp3"
-  }
-];
+let correctAnswerIndex: number = null;
 
 type SocketContext = {
   io: Server;
@@ -105,19 +89,26 @@ const startGame = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: 
   if (room.hostSocketId !== socket.id) return;
 
   room.status = "in_progress"
-  console.log(room.players[0].playerStats)
+
+  const suffledAnswers = room.players[0].playerStats.topArtists.map((artist) => ({ artist, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ artist }) => artist);
+  const suffledAnswers2 = room.players[0].playerStats.topTracks.map((track) => ({ track, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ track }) => track);
+  correctAnswerIndex = suffledAnswers.indexOf(room.players[0].playerStats.topArtists[0])
   const questions: GameQuestion[] = [
     {
       id: 1,
       type: "artist",
-      question: `Quel est cet artiste ?`,
-      answers: room.players[0].playerStats.topArtists,
-      correctAnswer: 0,
+      question: `Qui est l'ariste #1 de ${room.players[0].username} ?`,
+      answers: suffledAnswers,
       audioUrl: ""
+    }, {
+      id: 2,
+      type: "track",
+      question: `Qui est la musique #1 de ${room.players[0].username} ?`,
+      answers: suffledAnswers2,
     }
   ]
-  room.questions = questions.length >= 5 ? questions.slice(0, 5) :
-    room.questions = questions
+
+  room.questions = questions
   room.currentQuestion = room.questions[0]
   room.answers = {};
 
@@ -140,11 +131,19 @@ const answerQuestion = ({ io, socket }: SocketContext) => (
 
   if (room.answers[socket.id] !== undefined) return;
 
-  room.answers[socket.id] = answerIndex;
-
-  if (Object.keys(room.answers).length === room.players.length) {
-    goToNextQuestion(io, room);
+  if (answerIndex === correctAnswerIndex) {
+    score[socket.id] = (score[socket.id] || 0) + 1;
   }
+
+  setTimeout(() => {
+    console.log(answerIndex, correctAnswerIndex)
+    io.to(socket.id).emit("answerResult", {
+      result: answerIndex === correctAnswerIndex ? "correct" : "wrong",
+    });
+  }, 1000);
+  setTimeout(() => {
+    goToNextQuestion(io, room);
+  }, 4000);
 };
 
 const goToNextQuestion = (io: Server, room: Room) => {
@@ -162,7 +161,7 @@ const goToNextQuestion = (io: Server, room: Room) => {
   room.currentQuestion = room.questions[questionIndex + 1];
   room.answers = {};
 
-  io.to(room.code).emit("roomUpdated", room);
+  io.to(room.code).emit("nextQuestion", room.currentQuestion);
 };
 
 const disconnect = ({ io, socket }: SocketContext) => {

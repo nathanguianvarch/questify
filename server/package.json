@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "type": "commonjs",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "dev": "node --import=tsx --watch src/index.ts",
     "build": "tsc --outDir dist",

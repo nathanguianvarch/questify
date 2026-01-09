@@ -1,25 +1,28 @@
+import * as Haptics from "expo-haptics";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { Player } from "shared";
+import { AnswerState, Artist, Player, Track } from "shared";
 
-type AnswerPlayerProps = {
-  type: "player";
-  data: Player;
+type AnswerByType = {
+  artist: Artist;
+  player: Player;
+  track: Track;
 };
 
-type AnswerArtistProps = {
-  type: "artist";
-  data: any;
-};
-
-type AnswerProps = (AnswerPlayerProps | AnswerArtistProps) & {
-  type: "player" | "artist";
-  state: "waiting" | "answered" | "correct" | "wrong";
+type AnswerProps<T extends keyof AnswerByType> = {
+  type: T;
+  data: AnswerByType[T];
+  state: AnswerState;
   onPress?: () => void;
 };
 
-export default function Answer({ type, data, state, onPress }: AnswerProps) {
+export default function Answer<T extends keyof AnswerByType>({
+  type,
+  data,
+  state,
+  onPress,
+}: AnswerProps<T>) {
   let buttonStateStyle = "";
-  if (state === "waiting") {
+  if (state === "unanswered") {
     buttonStateStyle = "bg-white/10";
   } else if (state === "answered") {
     buttonStateStyle = "bg-amber-600";
@@ -30,9 +33,13 @@ export default function Answer({ type, data, state, onPress }: AnswerProps) {
   }
 
   if (type === "artist") {
+    const artist = data as Artist;
     return (
       <TouchableOpacity
-        onPress={onPress}
+        onPress={() => {
+          Haptics.selectionAsync();
+          onPress?.();
+        }}
         className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between`}
       >
         <View className="flex flex-row gap-3 items-center">
@@ -42,29 +49,59 @@ export default function Answer({ type, data, state, onPress }: AnswerProps) {
           />
           <View>
             <Text className="text-white font-semibold text-xl">
-              {data.name}
+              {artist.name}
             </Text>
             <Text className="text-white/50 font-semibold text-xl">
-              {data.popularity}
+              {artist.popularity}
             </Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   } else if (type === "player") {
+    const player = data as Player;
     return (
       <TouchableOpacity
-        onPress={onPress}
+        onPress={() => {
+          Haptics.selectionAsync();
+          onPress?.();
+        }}
         className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between`}
       >
         <View className="flex flex-row gap-3 items-center">
           <Image
             className="w-14 h-14 rounded-full"
-            source={{ uri: data.cover }}
+            source={{ uri: player.cover }}
           />
           <Text className="text-white font-semibold text-xl">
-            {data.username}
+            {player.username}
           </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  } else if (type === "track") {
+    const track = data as Track;
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          Haptics.selectionAsync();
+          onPress?.();
+        }}
+        className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between`}
+      >
+        <View className="flex flex-row gap-3 items-center">
+          <Image
+            className="rounded-2xl w-14 h-14"
+            source={{ uri: track.cover }}
+          />
+          <View>
+            <Text className="text-white font-semibold text-xl">
+              {track.title}
+            </Text>
+            <Text className="text-white/50 font-semibold text-xl">
+              {track.artists.map((artist) => artist.name).join(", ")}
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
     );

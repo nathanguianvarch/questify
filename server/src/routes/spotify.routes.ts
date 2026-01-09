@@ -36,6 +36,7 @@ spotifyRouter.get("/accesstoken", async (req, res) => {
   }
 })
 
+
 spotifyRouter.get("/refreshtoken", async (req, res) => {
   const { refresh_token } = req.query
 
@@ -94,7 +95,7 @@ spotifyRouter.get("/me/top/tracks", async (req, res) => {
   if (response.ok) {
     const result = await response.json();
     const tracks = result.items.map((item: any) => {
-      return { id: item.id, title: item.name, artists: item.artists.map((artist: any) => artist.name), cover: item.album.images[0].url };
+      return { id: item.id, title: item.name, artists: item.artists, cover: item.album.images[0].url };
     });
     res.json(tracks);
   } else {
@@ -119,9 +120,6 @@ spotifyRouter.get("/me/top/artists", async (req, res) => {
 
   if (response.ok) {
     const result = await response.json();
-    console.log(result.items.map((item: any) => {
-      return { id: item.id, name: item.name, cover: item.images[0].url, popularity: item.popularity };
-    }));
 
     const artists: Artist[] = result.items.map((item: any) => {
       return { id: item.id, name: item.name, cover: item.images[0].url, popularity: item.popularity };

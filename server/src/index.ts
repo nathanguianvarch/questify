@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 import path from "path";
@@ -14,6 +15,12 @@ export const io = new Server<
   ClientToServerEvents,
   ServerToClientEvents
 >(server);
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 initSockets(io)
 

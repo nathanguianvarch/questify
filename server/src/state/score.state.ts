@@ -1,0 +1,1 @@
+export const score: Record<string, number> = {};

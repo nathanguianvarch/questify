@@ -3,7 +3,11 @@ import NavBar from "@/components/NavBar";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useRoom } from "@/hooks/useRoom";
 import { requestServer } from "@/utils/server";
-import { requestAccountInformations, requestTopArtists } from "@/utils/spotify";
+import {
+  requestAccountInformations,
+  requestTopArtists,
+  requestTopTracks,
+} from "@/utils/spotify";
 import { router } from "expo-router";
 import { CircleAlert, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -42,6 +46,7 @@ export default function Index() {
 
     setRefreshing(true);
     player.playerStats!.topArtists = await requestTopArtists("long_term", 5);
+    player.playerStats!.topTracks = await requestTopTracks("long_term", 5);
     setRefreshing(false);
     console.log(player);
     socket.emit("createRoom", { player });
