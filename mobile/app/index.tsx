@@ -2,7 +2,6 @@ import Input from "@/components/Input";
 import NavBar from "@/components/NavBar";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useRoom } from "@/hooks/useRoom";
-import { requestServer } from "@/utils/server";
 import {
   requestAccountInformations,
   requestTopArtists,
@@ -26,7 +25,7 @@ import { socket } from "../hooks/useSocket";
 
 export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
-  const [serverOnline, setServerOnline] = useState<boolean | null>(null);
+  const [connected, setConnected] = useState(socket.connected);
   const [roomCode, setRoomCode] = useState("");
 
   const setPlayer = usePlayer((s) => s.setPlayer);
@@ -48,7 +47,6 @@ export default function Index() {
     player.playerStats!.topArtists = await requestTopArtists("long_term", 5);
     player.playerStats!.topTracks = await requestTopTracks("long_term", 5);
     setRefreshing(false);
-    console.log(player);
     socket.emit("createRoom", { player });
   };
 
@@ -59,12 +57,16 @@ export default function Index() {
     }
     if (!player) return;
 
-    socket.once("roomJoined", (room: Room) => {
-      if (!room) {
-        Alert.alert("Erreur", "La room n'existe pas ou n'a pas pu être jointe");
-        return;
-      }
+    socket.once("roomFull", (room: Room) => {
+      Alert.alert("Erreur", `La room ${roomCode} est pleine`);
+      return;
+    });
+    socket.once("roomNotExists", (room: Room) => {
+      Alert.alert("Erreur", `La room ${roomCode} n'existe pas`);
+      return;
+    });
 
+    socket.once("roomJoined", (room: Room) => {
       setRoom(room);
       router.push({
         pathname: "/room",
@@ -73,12 +75,6 @@ export default function Index() {
     });
 
     socket.emit("joinRoom", { roomCode, player });
-  };
-
-  const getServerStatus = async () => {
-    setRefreshing(true);
-    setServerOnline(await requestServer());
-    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -90,8 +86,11 @@ export default function Index() {
       setPlayer({ ...playerInformations, playerStats });
     };
     getPlayerData();
-    getServerStatus();
   }, [setPlayer]);
+
+  useEffect(() => {
+    setConnected(socket.connected);
+  }, []);
 
   useEffect(() => {
     socket.on("connect", () => console.log("connected"));
@@ -104,7 +103,7 @@ export default function Index() {
           <View>
             {refreshing ? (
               <ActivityIndicator />
-            ) : !serverOnline ? (
+            ) : connected ? (
               <TouchableOpacity
                 onPress={() => Alert.alert("Erreur", "Serveurs offline")}
               >
@@ -136,7 +135,7 @@ export default function Index() {
         }
       />
       <ScrollView className="h-full">
-        <RefreshControl refreshing={refreshing} onRefresh={getServerStatus} />
+        <RefreshControl refreshing={refreshing} />
         <View className="flex gap-4 m-4">
           <View className="flex gap-2.5">
             <Input

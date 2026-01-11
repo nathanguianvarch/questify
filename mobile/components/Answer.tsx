@@ -13,6 +13,7 @@ type AnswerProps<T extends keyof AnswerByType> = {
   data: AnswerByType[T];
   state: AnswerState;
   onPress?: () => void;
+  disabled?: boolean;
 };
 
 export default function Answer<T extends keyof AnswerByType>({
@@ -20,6 +21,7 @@ export default function Answer<T extends keyof AnswerByType>({
   data,
   state,
   onPress,
+  disabled,
 }: AnswerProps<T>) {
   let buttonStateStyle = "";
   if (state === "unanswered") {
@@ -41,6 +43,7 @@ export default function Answer<T extends keyof AnswerByType>({
           onPress?.();
         }}
         className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between`}
+        disabled={disabled}
       >
         <View className="flex flex-row gap-3 items-center">
           <Image
@@ -48,9 +51,7 @@ export default function Answer<T extends keyof AnswerByType>({
             source={{ uri: data.cover }}
           />
           <View>
-            <Text className="text-white font-semibold text-xl">
-              {artist.name}
-            </Text>
+            <Text className="text-white font-bold text-xl">{artist.name}</Text>
             <Text className="text-white/50 font-semibold text-xl">
               {artist.popularity}
             </Text>
@@ -67,13 +68,14 @@ export default function Answer<T extends keyof AnswerByType>({
           onPress?.();
         }}
         className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between`}
+        disabled={disabled}
       >
         <View className="flex flex-row gap-3 items-center">
           <Image
             className="w-14 h-14 rounded-full"
             source={{ uri: player.cover }}
           />
-          <Text className="text-white font-semibold text-xl">
+          <Text className="text-white font-bold text-xl">
             {player.username}
           </Text>
         </View>
@@ -88,6 +90,7 @@ export default function Answer<T extends keyof AnswerByType>({
           onPress?.();
         }}
         className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between overflow-hidden`}
+        disabled={disabled}
       >
         <View className="flex flex-row gap-3 items-center">
           <Image
@@ -95,9 +98,7 @@ export default function Answer<T extends keyof AnswerByType>({
             source={{ uri: track.cover }}
           />
           <View>
-            <Text className="text-white font-semibold text-xl">
-              {track.title}
-            </Text>
+            <Text className="text-white font-bold text-xl">{track.title}</Text>
             <Text className="text-white/50 font-semibold text-xl">
               {track.artists.map((artist) => artist.name).join(", ")}
             </Text>

@@ -14,6 +14,7 @@ export const registerRoomSockets = (io: Server, socket: Socket) => {
   socket.on("createRoom", createRoom({ io, socket }));
   socket.on("joinRoom", joinRoom({ io, socket }));
   socket.on("leaveRoom", leaveRoom({ io, socket }));
+  socket.on("kickPlayer", kickPlayer({ io, socket }));
 
   socket.on("startGame", startGame({ io, socket }));
   socket.on("answerQuestion", answerQuestion({ io, socket }));
@@ -30,6 +31,7 @@ const createRoom = ({ io, socket }: SocketContext) => ({ player }: { player: Pla
     hostSocketId: socket.id,
     players: [{ socketId: socket.id, ...player }],
     status: "waiting",
+    seats: 5,
   };
 
   socket.join(roomCode);
@@ -40,8 +42,15 @@ const createRoom = ({ io, socket }: SocketContext) => ({ player }: { player: Pla
 const joinRoom = ({ io, socket }: SocketContext) => ({ roomCode, player }: { roomCode: string, player: Player }) => {
   const room = rooms[roomCode];
 
-  if (!room) return;
+  if (!room) {
+    socket.emit("roomNotExists", roomCode);
+    return;
+  }
 
+  if (room.players.length >= room.seats) {
+    socket.emit("roomFull", roomCode);
+    return;
+  }
   const alreadyInRoom = room.players.some(
     (p) => p.socketId === socket.id
   );
@@ -53,6 +62,23 @@ const joinRoom = ({ io, socket }: SocketContext) => ({ roomCode, player }: { roo
   io.to(roomCode).emit("roomUpdated", room);
   socket.emit("roomJoined", rooms[roomCode]);
   console.log(`${player.username} a rejoint la partie ${roomCode}`)
+}
+
+const kickPlayer = ({ io, socket }: SocketContext) => (roomCode: string, player: Player) => {
+  const room = rooms[roomCode];
+  if (!room) return;
+  if (room.hostSocketId !== socket.id) return;
+
+  room.players = room.players.filter(
+    (p) => p.socketId !== player.socketId
+  );
+  console.log(room.players.filter(
+    (p) => p.socketId !== player.socketId
+  ));
+
+  socket.leave(roomCode);
+
+  io.to(roomCode).emit("roomUpdated", room);
 }
 
 const leaveRoom = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: string }) => {

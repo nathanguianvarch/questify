@@ -5,6 +5,7 @@ export type Room = {
   code: string;
   hostSocketId: string;
   players: Player[];
+  seats: number;
   status: RoomStatus;
 
   questions?: GameQuestion[]

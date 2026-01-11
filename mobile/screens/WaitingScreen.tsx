@@ -1,7 +1,9 @@
 import Button from "@/components/Button";
+import { useRoom } from "@/hooks/useRoom";
 import { socket } from "@/hooks/useSocket";
 import { Crown } from "lucide-react-native";
 import {
+  Alert,
   Image,
   ScrollView,
   Share,
@@ -9,18 +11,35 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Room } from "shared";
+import { Player } from "shared";
 
-export default function WaitingScreen({
-  room,
-  isHost,
-}: {
-  room: Room;
-  isHost: boolean;
-}) {
+export default function WaitingScreen({ isHost }: { isHost: boolean }) {
+  const room = useRoom((s) => s.room);
+
   const startGame = () => {
-    socket.emit("startGame", { roomCode: room.code });
+    if (room) {
+      socket.emit("startGame", { roomCode: room.code });
+    }
   };
+
+  const managePlayer = (player: Player) => {
+    if (isHost && room) {
+      Alert.alert(`${player.username}`, "", [
+        {
+          text: "Expulser",
+          style: "destructive",
+          onPress: () => {
+            socket.emit("kickPlayer", room.code, player.socketId);
+          },
+        },
+        {
+          text: "Annuler",
+          style: "cancel",
+        },
+      ]);
+    }
+  };
+  if (!room) return;
   return (
     <View className="m-4 flex-1 justify-between">
       <ScrollView>
@@ -29,6 +48,8 @@ export default function WaitingScreen({
             <TouchableOpacity
               key={index}
               className="bg-white/10 rounded-3xl p-2 flex flex-row items-center justify-between"
+              disabled={!isHost || value.socketId === room.hostSocketId}
+              onPress={() => managePlayer(value)}
             >
               <View className="flex flex-row gap-3 items-center">
                 <Image
@@ -50,7 +71,7 @@ export default function WaitingScreen({
       </ScrollView>
       <View className="flex gap-4">
         <Text className="text-white text-center text-xl font-semibold">
-          En attente de joueurs : {room.players.length} / 10
+          En attente de joueurs : {room.players.length} / {room.seats}
         </Text>
         <Button
           backgroundColor="info"

@@ -1,5 +1,5 @@
 import Button from "@/components/Button";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { PlayerScore, Room } from "shared";
 
 type GameFinishedProps = {
@@ -22,6 +22,7 @@ export default function GameFinished({ room, score }: GameFinishedProps) {
               <TouchableOpacity
                 key={playerId}
                 className="bg-white/10 rounded-3xl p-2 flex flex-row items-center justify-between"
+                disabled={true}
               >
                 <View className="flex flex-row gap-3 items-center">
                   <Image
@@ -42,7 +43,9 @@ export default function GameFinished({ room, score }: GameFinishedProps) {
           })}
         </View>
       </View>
-      <Button backgroundColor="info">Rejouer</Button>
+      <Button backgroundColor="info" onClick={() => Alert.alert("Bientôt")}>
+        Rejouer
+      </Button>
     </View>
   );
 }

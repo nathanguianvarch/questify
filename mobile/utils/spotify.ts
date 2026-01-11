@@ -123,7 +123,6 @@ export const fetchWithAuth = async (url: string, options?: RequestInit) => {
     if (response.ok) {
       return result
     } else {
-      console.log(response)
       Alert.alert("Erreur", "Une erreur est survenue")
       return new Error()
     }

@@ -49,14 +49,13 @@ export default function RoomPage() {
     socket.once("gameFinished", (room, score) => {
       updateRoom(room);
       setScore(score);
-      console.log(room, score);
     });
 
     return () => {
       socket.off("disconnect", onDisconnect);
       socket.off("gameFinished");
     };
-  }, [room]);
+  }, [updateRoom]);
 
   const leaveRoomDialog = async () => {
     Alert.alert(
@@ -103,7 +102,7 @@ export default function RoomPage() {
         }
       />
       {room.status === "waiting" ? (
-        <WaitingScreen room={room} isHost={room.hostSocketId === socket.id} />
+        <WaitingScreen isHost={room.hostSocketId === socket.id} />
       ) : room.status === "in_progress" ? (
         <GameInProgress room={room} />
       ) : room.status === "finished" ? (
