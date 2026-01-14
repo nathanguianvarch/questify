@@ -28,7 +28,6 @@ spotifyRouter.get("/accesstoken", async (req, res) => {
     },
     body: bodyParams.toString()
   })
-
   if (response.ok) {
     res.json(await response.json());
   } else {
@@ -122,9 +121,33 @@ spotifyRouter.get("/me/top/artists", async (req, res) => {
     const result = await response.json();
 
     const artists: Artist[] = result.items.map((item: any) => {
-      return { id: item.id, name: item.name, cover: item.images[0].url, popularity: item.popularity };
+      return { id: item.id, name: item.name, cover: item.images[0].url, followers: item.followers.total };
     });
     res.json(artists);
+  } else {
+    res.json(await response.json()).status(response.status);
+  }
+})
+
+spotifyRouter.get("/tracks/:id", async (req, res) => {
+  const { authorization } = req.headers
+  const { id } = req.params
+
+  let url = new URL(`${spotifyApiURL}/tracks/${id}`);
+
+  const response = await fetch(url, {
+    headers: {
+      "Authorization": authorization
+    }
+  })
+
+  if (response.ok) {
+    const result = await response.json();
+
+    // const tracks: Track = result.items.map((item: any) => {
+    //   return { id: item.id, title: item.name, artists: item.artists, cover: item.album.images[0].url };
+    // });
+    res.json({ id: result.id, title: result.name, artists: result.artists, cover: result.album.images[0].url });
   } else {
     res.json(await response.json()).status(response.status);
   }

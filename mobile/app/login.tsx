@@ -1,5 +1,5 @@
 import Button from "@/components/Button";
-import { requestAccessToken, spotifyAccountURL } from "@/utils/spotify";
+import { requestAccessToken, spotifyAccountURL } from "@/services/spotify";
 import { useAuthRequest } from "expo-auth-session";
 import { router } from "expo-router";
 import { maybeCompleteAuthSession } from "expo-web-browser";
@@ -16,6 +16,9 @@ export default function SpotifyConnection() {
       scopes: ["user-read-email", "playlist-modify-public", "user-top-read"],
       redirectUri: "questify://login",
       usePKCE: false,
+      extraParams: {
+        show_dialog: "true",
+      },
     },
     {
       authorizationEndpoint: `${spotifyAccountURL}/authorize`,

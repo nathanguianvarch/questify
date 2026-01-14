@@ -1,7 +1,7 @@
 import Button from "@/components/Button";
 import NavBar from "@/components/NavBar";
 import { usePlayer } from "@/hooks/usePlayer";
-import { logout } from "@/utils/spotify";
+import { logout } from "@/services/spotify";
 import { router } from "expo-router";
 import { ChevronLeft, User } from "lucide-react-native";
 import { Image, Text, TouchableOpacity, View } from "react-native";

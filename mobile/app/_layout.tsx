@@ -1,4 +1,4 @@
-import { getAccessToken } from "@/utils/spotify";
+import { getAccessToken } from "@/services/spotify";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { setAudioModeAsync } from "expo-audio";
 import { router, SplashScreen, Stack } from "expo-router";

@@ -1,3 +1,4 @@
+import { formatNumber } from "@/utils/format";
 import * as Haptics from "expo-haptics";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { AnswerState, Artist, Player, Track } from "shared";
@@ -53,7 +54,7 @@ export default function Answer<T extends keyof AnswerByType>({
           <View>
             <Text className="text-white font-bold text-xl">{artist.name}</Text>
             <Text className="text-white/50 font-semibold text-xl">
-              {artist.popularity}
+              {formatNumber(artist.followers)} followers
             </Text>
           </View>
         </View>

@@ -5,7 +5,10 @@ export type BaseGameQuestion = {
   type: "artist" | "player" | "track";
   question: string;
   playersAnswerState?: { [playerId: string]: AnswerState };
-  audioUrl?: string;
+  previewTrack?: {
+    url: string;
+    spotifyId: string;
+  };
 };
 
 export type AnswerState = "unanswered" | "answered" | "correct" | "wrong";
@@ -14,7 +17,7 @@ export type Artist = {
   id: string;
   name: string;
   cover: string;
-  popularity: number;
+  followers: number;
 };
 
 export type Track = {

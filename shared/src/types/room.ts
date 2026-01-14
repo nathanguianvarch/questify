@@ -9,6 +9,7 @@ export type Room = {
   status: RoomStatus;
 
   questions?: GameQuestion[]
+  timePerQuestion: number;
   currentQuestion?: GameQuestion;
   answers?: Record<string, number>
 };

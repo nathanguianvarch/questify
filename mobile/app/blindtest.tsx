@@ -1,5 +1,5 @@
 import Input from "@/components/Input";
-import { requestPreviewSongAudio, requestSongInfos } from "@/utils/spotify";
+import { requestPreviewSongAudio, requestSongInfos } from "@/services/spotify";
 import { useAudioPlayer } from "expo-audio";
 import { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";

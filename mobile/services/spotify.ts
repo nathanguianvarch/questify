@@ -61,8 +61,9 @@ const requestRefreshToken = async () => {
 
 export const requestAccountInformations = async () => {
   const spotifyUser = await fetchWithAuth(`${serverURL}/spotify/me`)
+  const cover = spotifyUser.images ? spotifyUser.images[0]?.url : ""
   return {
-    username: spotifyUser.display_name, cover: spotifyUser.images[0].url, ...spotifyUser
+    username: spotifyUser.display_name, cover, ...spotifyUser
   }
 }
 
@@ -73,6 +74,11 @@ export const requestTopArtists = async (time_range: string, limit: number) => {
 
 export const requestTopTracks = async (time_range: string, limit: number) => {
   const result = await fetchWithAuth(`${serverURL}/spotify/me/top/tracks?time_range=${time_range}&limit=${limit}`)
+  return result
+}
+
+export const requestTrackInfos = async (id: string) => {
+  const result = await fetchWithAuth(`${serverURL}/spotify/tracks/${id}`)
   return result
 }
 

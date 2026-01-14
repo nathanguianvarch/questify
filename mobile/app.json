@@ -9,8 +9,10 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.nathanguianvarch.questify"
+      "bundleIdentifier": "com.nathanguianvarch.questify",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -47,7 +49,8 @@
       ],
       "expo-secure-store",
       "expo-web-browser",
-      "expo-audio"
+      "expo-audio",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -56,7 +59,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "25e08a91-b659-491f-97b9-33363c2b4b03"
+        "projectId": "035512ac-ec7b-431c-bdab-360af9ce1e93"
       }
     }
   }

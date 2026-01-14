@@ -8,8 +8,9 @@ export interface ServerToClientEvents {
   roomJoined: (room: Room) => void;
   roomNotExists: (room: Room) => void;
   roomFull: (room: Room) => void;
+  activeRooms: (activeRooms: number) => void;
 
-  answerResult: ({ result }: { result: AnswerState }) => void;
+  answerResult: ({ result, correctAnswerIndex }: { result: AnswerState, correctAnswerIndex: number }) => void;
   nextQuestion: (question: GameQuestion) => void;
   gameFinished: (room: Room, score: PlayerScore) => void;
 

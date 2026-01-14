@@ -3,10 +3,11 @@ import NavBar from "@/components/NavBar";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useRoom } from "@/hooks/useRoom";
 import {
+  logout,
   requestAccountInformations,
   requestTopArtists,
   requestTopTracks,
-} from "@/utils/spotify";
+} from "@/services/spotify";
 import { router } from "expo-router";
 import { CircleAlert, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -16,6 +17,7 @@ import {
   Image,
   RefreshControl,
   ScrollView,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -27,6 +29,7 @@ export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
   const [connected, setConnected] = useState(socket.connected);
   const [roomCode, setRoomCode] = useState("");
+  const [activeRoomsNumber, setActiveRoomsNumber] = useState(0);
 
   const setPlayer = usePlayer((s) => s.setPlayer);
   const player = usePlayer((s) => s.player);
@@ -42,11 +45,6 @@ export default function Index() {
     });
 
     if (!player) return;
-
-    setRefreshing(true);
-    player.playerStats!.topArtists = await requestTopArtists("long_term", 5);
-    player.playerStats!.topTracks = await requestTopTracks("long_term", 5);
-    setRefreshing(false);
     socket.emit("createRoom", { player });
   };
 
@@ -82,14 +80,23 @@ export default function Index() {
       const playerInformations = await requestAccountInformations();
       const playerStats = {
         topArtists: await requestTopArtists("long_term", 5),
+        topTracks: await requestTopTracks("long_term", 5),
       };
-      setPlayer({ ...playerInformations, playerStats });
+      setPlayer({
+        ...playerInformations,
+        playerStats,
+        cover: playerInformations.cover,
+      });
     };
     getPlayerData();
   }, [setPlayer]);
 
   useEffect(() => {
     setConnected(socket.connected);
+    socket.on("activeRooms", (activeRooms: number) => {
+      setActiveRoomsNumber(activeRooms);
+      console.log("Active rooms:", activeRoomsNumber);
+    });
   }, []);
 
   useEffect(() => {
@@ -116,7 +123,7 @@ export default function Index() {
         }
         rightContent={
           <View className="flex-1 flex flex-row gap-5 items-center justify-end">
-            {player && (
+            {player ? (
               <TouchableOpacity
                 className="border border-white/20 rounded-full"
                 onPress={() => router.push("/profile")}
@@ -130,22 +137,36 @@ export default function Index() {
                   <User color="#ffff" />
                 )}
               </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={logout}>
+                <ActivityIndicator />
+              </TouchableOpacity>
             )}
           </View>
         }
       />
       <ScrollView className="h-full">
         <RefreshControl refreshing={refreshing} />
-        <View className="flex gap-4 m-4">
-          <View className="flex gap-2.5">
-            <Input
-              value={roomCode}
-              onChangeText={(value) => setRoomCode(value)}
-              maxLength={4}
-            ></Input>
-            <Bouton onClick={joinRoom}>Rejoindre une partie</Bouton>
+        <View className="flex-col gap-4 my-4">
+          <View className="flex flex-col">
+            <View className="bg-white/10 rounded-full px-4 py-2">
+              <Text className="text-white font-semibold text-xl">
+                {activeRoomsNumber} partie{activeRoomsNumber > 1 ? "s" : ""} en
+                cours
+              </Text>
+            </View>
           </View>
-          <Bouton onClick={createRoom}>Créer une partie</Bouton>
+          <View className="flex gap-4">
+            <View className="flex gap-2.5">
+              <Input
+                value={roomCode}
+                onChangeText={(value) => setRoomCode(value)}
+                maxLength={4}
+              ></Input>
+              <Bouton onClick={joinRoom}>Rejoindre une partie</Bouton>
+            </View>
+            <Bouton onClick={createRoom}>Créer une partie</Bouton>
+          </View>
         </View>
       </ScrollView>
     </View>
