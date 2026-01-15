@@ -1,10 +1,10 @@
+import { correctAnswerIndex } from "@/state/question.state";
 import { rooms } from "@/state/room.state";
 import { score } from "@/state/score.state";
+import { generateRandomQuestions } from "@/utils/game";
 import { requestPreviewSongAudio } from "@/utils/spotify";
 import { GameQuestion, Player, Room } from "shared";
 import { Server, Socket } from "socket.io";
-
-let correctAnswerIndex: Record<number, number> = {};
 
 type SocketContext = {
   io: Server;
@@ -17,7 +17,7 @@ export const registerRoomSockets = async (io: Server, socket: Socket) => {
   socket.on("leaveRoom", leaveRoom({ io, socket }));
   socket.on("kickPlayer", kickPlayer({ io, socket }));
 
-  socket.on("startGame", await startGame({ io, socket }));
+  socket.on("startGame", startGame({ io, socket }));
   socket.on("answerQuestion", answerQuestion({ io, socket }));
   socket.on("endGame", endGame({ io, socket }));
 
@@ -112,48 +112,18 @@ const leaveRoom = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: 
   console.log(`Socket ${socket.id} a quitté la partie ${roomCode}`);
 }
 
-const startGame = async ({ io, socket }: SocketContext) => async ({ roomCode }: { roomCode: string }) => {
+const startGame = ({ io, socket }: SocketContext) => async (roomCode: string, authorization: string) => {
   const room = rooms[roomCode]
   if (!room) return;
   if (room.hostSocketId !== socket.id) return;
 
   room.status = "in_progress"
 
-  const suffledAnswers = room.players[0].playerStats.topArtists.map((artist) => ({ artist, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ artist }) => artist);
-  const suffledAnswers2 = room.players[0].playerStats.topTracks.map((track) => ({ track, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ track }) => track);
-  correctAnswerIndex[1] = suffledAnswers.indexOf(
-    room.players[0].playerStats.topArtists[0]
-  );
-
-  correctAnswerIndex[2] = suffledAnswers2.indexOf(
-    room.players[0].playerStats.topTracks[0]
-  );
-
-  const questions: GameQuestion[] = [
-    {
-      id: 1,
-      type: "artist",
-      question: `Qui est l'ariste #1 de ${room.players[0].username} ?`,
-      answers: suffledAnswers,
-      previewTrack: {
-        url: "",
-        spotifyId: "4NhPbSqVQjnwALTZrhXdfD",
-      }
-    }, {
-      id: 2,
-      type: "track",
-      question: `Qui est la musique #1 de ${room.players[0].username} ?`,
-      answers: suffledAnswers2,
-      previewTrack: {
-        url: "",
-        spotifyId: "3HonBdcrydNrmtHIOxp5b6",
-      }
-    }
-  ]
+  const questions: GameQuestion[] = await generateRandomQuestions(room, authorization);
 
   for (const question of questions) {
     if (question.previewTrack) {
-      question.previewTrack.url = await requestPreviewSongAudio(question.previewTrack.spotifyId);
+      question.previewTrack.previewUrl = await requestPreviewSongAudio(question.previewTrack.id);
     }
   }
 
@@ -161,25 +131,31 @@ const startGame = async ({ io, socket }: SocketContext) => async ({ roomCode }: 
   room.currentQuestion = room.questions[0]
   room.answers = {};
 
+  for (const player of room.players) {
+    score[room.code] = score[room.code] || {};
+    score[room.code][player.socketId] = 0;
+  }
+
   const endQuestionDate = (new Date().getTime() + room.timePerQuestion * 1000);
 
   io.to(roomCode).emit("roomUpdated", room)
 
-  const intervalId = setInterval(() => {
-    if (new Date().getTime() >= endQuestionDate) {
-      clearInterval(intervalId);
-      const questionId = room.currentQuestion?.id;
-      const correctIndex = questionId ? correctAnswerIndex[questionId] : undefined;
+  // const intervalId = setInterval(() => {
+  //   if (new Date().getTime() >= endQuestionDate) {
+  //     console.log("Time's up for question", room.currentQuestion?.id);
+  //     clearInterval(intervalId);
+  //     const questionId = room.currentQuestion?.id;
+  //     const correctIndex = questionId ? correctAnswerIndex[room.code]?.[questionId] : undefined;
 
-      io.to(room.code).emit("answerResult", {
-        result: "wrong",
-        correctAnswerIndex: correctIndex
-      });
-      setTimeout(() => {
-        goToNextQuestion(io, room);
-      }, 2000);
-    }
-  }, room.timePerQuestion * 1000);
+  //     io.to(room.code).emit("answerResult", {
+  //       result: "wrong",
+  //       correctAnswerIndex: correctIndex
+  //     });
+  //     setTimeout(() => {
+  //       goToNextQuestion(io, room);
+  //     }, 2000);
+  //   }
+  // }, room.timePerQuestion * 1000);
 }
 
 const endGame = ({ io, socket }: SocketContext) => ({ roomCode }: { roomCode: string }) => {
@@ -201,7 +177,7 @@ const answerQuestion = ({ io, socket }: SocketContext) => (
   room.answers[socket.id] = answerIndex;
 
   const questionId = room.currentQuestion?.id;
-  const correctIndex = questionId ? correctAnswerIndex[questionId] : undefined;
+  const correctIndex = questionId ? correctAnswerIndex[room.code]?.[questionId] : undefined;
 
   const roomScore = score[room.code] || {};
   if (answerIndex === correctIndex) {
@@ -213,7 +189,7 @@ const answerQuestion = ({ io, socket }: SocketContext) => (
   if (Object.keys(room.answers).length >= room.players.length) {
     setTimeout(() => {
       const questionId = room.currentQuestion?.id;
-      const correctIndex = questionId ? correctAnswerIndex[questionId] : undefined;
+      const correctIndex = questionId ? correctAnswerIndex[room.code]?.[questionId] : undefined;
 
       io.to(room.code).emit("answerResult", {
         result: answerIndex === correctIndex ? "correct" : "wrong",
@@ -243,6 +219,26 @@ const goToNextQuestion = (io: Server, room: Room) => {
   room.answers = {};
 
   io.to(room.code).emit("nextQuestion", room.currentQuestion);
+
+  const endQuestionDate = (new Date().getTime() + room.timePerQuestion * 1000);
+  // const intervalId = setInterval(() => {
+  //   if (new Date().getTime() >= endQuestionDate) {
+  //     console.log("Time's up for question", room.currentQuestion?.id);
+  //     clearInterval(intervalId);
+  //     const questionId = room.currentQuestion?.id;
+  //     const correctIndex = questionId ? correctAnswerIndex[room.code]?.[questionId] : undefined;
+  //     console.log("correctIndex:", correctIndex);
+
+  //     io.to(room.code).emit("answerResult", {
+  //       result: "wrong",
+  //       correctAnswerIndex: correctIndex
+  //     });
+  //     console.log("Going to next question due to timeout");
+  //     setTimeout(() => {
+  //       goToNextQuestion(io, room);
+  //     }, 2000);
+  //   }
+  // }, room.timePerQuestion * 1000);
 };
 
 const disconnect = ({ io, socket }: SocketContext) => {

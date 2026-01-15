@@ -9,7 +9,7 @@ import {
   requestTopTracks,
 } from "@/services/spotify";
 import { router } from "expo-router";
-import { CircleAlert, User } from "lucide-react-native";
+import { ArrowRight, CircleAlert, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -21,7 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Room } from "shared";
+import { Player, Room } from "shared";
 import Bouton from "../components/Button";
 import { socket } from "../hooks/useSocket";
 
@@ -78,9 +78,17 @@ export default function Index() {
   useEffect(() => {
     const getPlayerData = async () => {
       const playerInformations = await requestAccountInformations();
-      const playerStats = {
-        topArtists: await requestTopArtists("long_term", 5),
-        topTracks: await requestTopTracks("long_term", 5),
+      const playerStats: Player["playerStats"] = {
+        topArtists: {
+          longTerm: await requestTopArtists("long_term", 5),
+          mediumTerm: await requestTopArtists("medium_term", 5),
+          shortTerm: await requestTopArtists("short_term", 5),
+        },
+        topTracks: {
+          longTerm: await requestTopTracks("long_term", 5),
+          mediumTerm: await requestTopTracks("medium_term", 5),
+          shortTerm: await requestTopTracks("short_term", 5),
+        },
       };
       setPlayer({
         ...playerInformations,
@@ -95,7 +103,6 @@ export default function Index() {
     setConnected(socket.connected);
     socket.on("activeRooms", (activeRooms: number) => {
       setActiveRoomsNumber(activeRooms);
-      console.log("Active rooms:", activeRoomsNumber);
     });
   }, []);
 
@@ -147,23 +154,27 @@ export default function Index() {
       />
       <ScrollView className="h-full">
         <RefreshControl refreshing={refreshing} />
-        <View className="flex-col gap-4 my-4">
+        <View className="flex-col gap-4 my-4 mx-2">
           <View className="flex flex-col">
             <View className="bg-white/10 rounded-full px-4 py-2">
-              <Text className="text-white font-semibold text-xl">
+              <Text className="text-white font-semibold text-center text-xl">
                 {activeRoomsNumber} partie{activeRoomsNumber > 1 ? "s" : ""} en
                 cours
               </Text>
             </View>
           </View>
           <View className="flex gap-4">
-            <View className="flex gap-2.5">
+            <View className="flex flex-row gap-2.5">
               <Input
                 value={roomCode}
+                placeholder="----"
                 onChangeText={(value) => setRoomCode(value)}
                 maxLength={4}
+                className="flex-1"
               ></Input>
-              <Bouton onClick={joinRoom}>Rejoindre une partie</Bouton>
+              <Bouton onClick={joinRoom} disabled={roomCode.length !== 4}>
+                <ArrowRight className="mr-2" size={24} color="black" />
+              </Bouton>
             </View>
             <Bouton onClick={createRoom}>Créer une partie</Bouton>
           </View>

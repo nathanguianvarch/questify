@@ -52,8 +52,13 @@ export default function Answer<T extends keyof AnswerByType>({
             source={{ uri: data.cover }}
           />
           <View>
-            <Text className="text-white font-bold text-xl">{artist.name}</Text>
-            <Text className="text-white/50 font-semibold text-xl">
+            <Text className="text-white font-bold text-xl" numberOfLines={1}>
+              {artist.name}
+            </Text>
+            <Text
+              className="text-white/50 font-semibold text-xl"
+              numberOfLines={1}
+            >
               {formatNumber(artist.followers)} followers
             </Text>
           </View>
@@ -76,7 +81,7 @@ export default function Answer<T extends keyof AnswerByType>({
             className="w-14 h-14 rounded-full"
             source={{ uri: player.cover }}
           />
-          <Text className="text-white font-bold text-xl">
+          <Text className="text-white font-bold text-xl" numberOfLines={1}>
             {player.username}
           </Text>
         </View>
@@ -90,7 +95,7 @@ export default function Answer<T extends keyof AnswerByType>({
           Haptics.selectionAsync();
           onPress?.();
         }}
-        className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between overflow-hidden`}
+        className={`${buttonStateStyle} rounded-3xl p-2 flex flex-row items-center justify-between`}
         disabled={disabled}
       >
         <View className="flex flex-row gap-3 items-center">
@@ -98,9 +103,14 @@ export default function Answer<T extends keyof AnswerByType>({
             className="rounded-2xl w-14 h-14"
             source={{ uri: track.cover }}
           />
-          <View>
-            <Text className="text-white font-bold text-xl">{track.title}</Text>
-            <Text className="text-white/50 font-semibold text-xl">
+          <View className="flex-1">
+            <Text className="text-white font-bold text-xl" numberOfLines={1}>
+              {track.title}
+            </Text>
+            <Text
+              className="text-white/50 font-semibold text-xl"
+              numberOfLines={1}
+            >
               {track.artists.map((artist) => artist.name).join(", ")}
             </Text>
           </View>

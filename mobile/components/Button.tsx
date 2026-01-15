@@ -4,11 +4,13 @@ export default function Button({
   children,
   backgroundColor = "primary",
   onClick,
+  disabled = false,
   className = "",
 }: {
-  children: string;
+  children: string | React.ReactNode;
   backgroundColor?: string;
   onClick?: () => void;
+  disabled?: boolean;
   className?: string;
 }) {
   if (backgroundColor === "primary") {
@@ -20,9 +22,10 @@ export default function Button({
   }
   return (
     <TouchableOpacity
-      className={`bg-[${backgroundColor}] rounded-2xl px-4 py-3 ${className}`}
+      className={`bg-[${backgroundColor}] rounded-2xl px-4 py-3 ${className} disabled:opacity-50`}
       activeOpacity={0.7}
       style={{ backgroundColor }}
+      disabled={disabled}
       onPress={onClick}
     >
       <Text className="text-black text-2xl font-semibold text-center">

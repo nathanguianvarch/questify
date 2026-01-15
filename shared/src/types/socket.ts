@@ -11,7 +11,7 @@ export interface ServerToClientEvents {
   activeRooms: (activeRooms: number) => void;
 
   answerResult: ({ result, correctAnswerIndex }: { result: AnswerState, correctAnswerIndex: number }) => void;
-  nextQuestion: (question: GameQuestion) => void;
+  nextQuestion: (question: GameQuestion, endQuestionAt: number) => void;
   gameFinished: (room: Room, score: PlayerScore) => void;
 
   roomLeft: (room: Room) => void;
@@ -24,7 +24,7 @@ export interface ClientToServerEvents {
   joinRoom: (payload: { roomCode: string; player: Player }) => void;
   leaveRoom: (payload: { roomCode: string; }) => void;
   kickPlayer: (roomCode: string, socketId: string) => void;
-  startGame: (payload: { roomCode: string }) => void;
+  startGame: (roomCode: string, authorization: string) => void;
   answerQuestion: (payload: { roomCode: string, answerIndex: number }) => void;
   endGame: (payload: { roomCode: string }) => void;
 }

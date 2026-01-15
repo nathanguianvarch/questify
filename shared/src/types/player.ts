@@ -9,8 +9,16 @@ export type Player = {
 };
 
 export type SpotifyPlayerStats = {
-  topArtists: AnswerArtist[];
-  topTracks: AnswerTrack[];
+  topArtists: {
+    longTerm: AnswerArtist[];
+    mediumTerm: AnswerArtist[];
+    shortTerm: AnswerArtist[];
+  };
+  topTracks: {
+    longTerm: AnswerTrack[];
+    mediumTerm: AnswerTrack[];
+    shortTerm: AnswerTrack[];
+  };
 }
 
 export type AnswerArtist = Artist & {

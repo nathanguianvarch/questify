@@ -1,3 +1,4 @@
+import { requestArtistTopTracks, requestTrack } from '@/utils/spotify';
 import 'dotenv/config';
 import express from "express";
 import { Artist } from 'shared';
@@ -133,22 +134,24 @@ spotifyRouter.get("/tracks/:id", async (req, res) => {
   const { authorization } = req.headers
   const { id } = req.params
 
-  let url = new URL(`${spotifyApiURL}/tracks/${id}`);
+  requestTrack(id, authorization.toString())
+    .then((track) => {
+      res.json(track);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+})
 
-  const response = await fetch(url, {
-    headers: {
-      "Authorization": authorization
-    }
-  })
+spotifyRouter.get("/artists/:id/top-tracks", async (req, res) => {
+  const { authorization } = req.headers
+  const { id } = req.params
 
-  if (response.ok) {
-    const result = await response.json();
-
-    // const tracks: Track = result.items.map((item: any) => {
-    //   return { id: item.id, title: item.name, artists: item.artists, cover: item.album.images[0].url };
-    // });
-    res.json({ id: result.id, title: result.name, artists: result.artists, cover: result.album.images[0].url });
-  } else {
-    res.json(await response.json()).status(response.status);
-  }
+  requestArtistTopTracks(id, authorization.toString())
+    .then((tracks) => {
+      res.json(tracks);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
 })

@@ -1,1 +1,1 @@
-export const correctAnswerIndex: number = null;
+export const correctAnswerIndex: Record<string, Record<number, number>> = {};

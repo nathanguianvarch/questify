@@ -1,6 +1,7 @@
 import Button from "@/components/Button";
 import { useRoom } from "@/hooks/useRoom";
 import { socket } from "@/hooks/useSocket";
+import { getAccessToken } from "@/services/spotify";
 import { Crown } from "lucide-react-native";
 import {
   Alert,
@@ -16,9 +17,10 @@ import { Player } from "shared";
 export default function WaitingScreen({ isHost }: { isHost: boolean }) {
   const room = useRoom((s) => s.room);
 
-  const startGame = () => {
+  const startGame = async () => {
+    const authorization = "Bearer " + (await getAccessToken());
     if (room) {
-      socket.emit("startGame", { roomCode: room.code });
+      socket.emit("startGame", room.code, authorization);
     }
   };
 
