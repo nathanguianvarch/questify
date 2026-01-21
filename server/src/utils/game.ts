@@ -27,7 +27,7 @@ export const generateRandomQuestions = async (
 
   for (const kind of questionPool) {
     const id = questions.length;
-    if (kind === "topArtistLongTerm") {
+    if (kind === "topArtistLongTerm" && player.playerStats.topArtists.longTerm.length > 0) {
       const answers = shuffle(player.playerStats.topArtists.longTerm);
 
       correctAnswerIndex[room.code][id] = answers.indexOf(
@@ -48,7 +48,7 @@ export const generateRandomQuestions = async (
       });
     }
 
-    if (kind === "topTrackLongTerm") {
+    if (kind === "topTrackLongTerm" && player.playerStats.topTracks.longTerm.length > 0) {
       const answers = shuffle(player.playerStats.topTracks.longTerm);
 
       correctAnswerIndex[room.code][id] = answers.indexOf(
@@ -68,7 +68,7 @@ export const generateRandomQuestions = async (
         },
       });
     }
-    if (kind === "topArtistMediumTerm") {
+    if (kind === "topArtistMediumTerm" && player.playerStats.topArtists.mediumTerm.length > 0) {
       const answers = shuffle(player.playerStats.topArtists.mediumTerm);
       correctAnswerIndex[room.code][id] = answers.indexOf(
         player.playerStats.topArtists.mediumTerm[0]
@@ -87,7 +87,7 @@ export const generateRandomQuestions = async (
         },
       });
     }
-    if (kind === "topTrackMediumTerm") {
+    if (kind === "topTrackMediumTerm" && player.playerStats.topTracks.mediumTerm.length > 0) {
       const answers = shuffle(player.playerStats.topTracks.mediumTerm);
 
       correctAnswerIndex[room.code][id] = answers.indexOf(
@@ -107,7 +107,7 @@ export const generateRandomQuestions = async (
         },
       });
     }
-    if (kind === "topArtistShortTerm") {
+    if (kind === "topArtistShortTerm" && player.playerStats.topArtists.shortTerm.length > 0) {
       const answers = shuffle(player.playerStats.topArtists.shortTerm);
 
       correctAnswerIndex[room.code][id] = answers.indexOf(
@@ -127,7 +127,7 @@ export const generateRandomQuestions = async (
         },
       });
     }
-    if (kind === "topTrackShortTerm") {
+    if (kind === "topTrackShortTerm" && player.playerStats.topTracks.shortTerm.length > 0) {
       const answers = shuffle(player.playerStats.topTracks.shortTerm);
 
       correctAnswerIndex[room.code][id] = answers.indexOf(
