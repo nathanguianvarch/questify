@@ -1,0 +1,17 @@
+{
+  "name": "questify",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "mobile": "cd mobile && bun run start",
+    "server": "cd server && bun run dev",
+    "dev": "bun run server & bun run mobile"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

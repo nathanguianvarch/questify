@@ -189,8 +189,9 @@ const answerQuestion = ({ io, socket }: SocketContext) => (
   if (Object.keys(room.answers).length >= room.players.length) {
     setTimeout(() => {
       const questionId = room.currentQuestion?.id;
-      const correctIndex = questionId ? correctAnswerIndex[room.code]?.[questionId] : undefined;
-
+      console.log("id question", questionId);
+      const correctIndex = correctAnswerIndex[room.code][questionId];
+      console.log(answerIndex, correctIndex);
       io.to(room.code).emit("answerResult", {
         result: answerIndex === correctIndex ? "correct" : "wrong",
         correctAnswerIndex: correctIndex

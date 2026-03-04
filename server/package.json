@@ -4,7 +4,7 @@
   "type": "commonjs",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "node --import=tsx --watch --inspect src/index.ts",
+    "dev": "bun --inspect --watch src/index.ts",
     "build": "tsc --outDir dist",
     "start": "node dist/server/src/index.js"
   },

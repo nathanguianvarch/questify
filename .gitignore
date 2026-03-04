@@ -1,3 +1,2 @@
-.DS_Store
 .env
-oldMobile/
+node_modules/
