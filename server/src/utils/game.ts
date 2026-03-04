@@ -29,6 +29,11 @@ export const generateRandomQuestions = async (
     const id = questions.length;
     if (kind === "topArtistLongTerm" && player.playerStats.topArtists.longTerm.length > 0) {
       const answers = shuffle(player.playerStats.topArtists.longTerm);
+      console.log("id", id);
+
+      console.log(answers.indexOf(
+        player.playerStats.topArtists.longTerm[0]
+      ))
 
       correctAnswerIndex[room.code][id] = answers.indexOf(
         player.playerStats.topArtists.longTerm[0]
@@ -46,6 +51,7 @@ export const generateRandomQuestions = async (
           previewUrl: "",
         },
       });
+      return questions
     }
 
     if (kind === "topTrackLongTerm" && player.playerStats.topTracks.longTerm.length > 0) {

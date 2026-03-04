@@ -1,0 +1,11 @@
+{
+  "name": "questify",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "mobile": "cd mobile && bun run start",
+    "server": "cd server && bun run dev",
+    "dev": "concurrently \"bun run mobile\" \"bun run server\""
+  }
+}
