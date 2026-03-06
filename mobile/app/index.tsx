@@ -110,7 +110,7 @@ export default function Index() {
     socket.on("connect", () => console.log("connected"));
   }, []);
   return (
-    <View className="bg-black">
+    <View>
       <NavBar
         title="Accueil"
         leftContent={
