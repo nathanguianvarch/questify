@@ -1,5 +1,4 @@
 import { getAccessToken } from "@/services/spotify";
-import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { setAudioModeAsync } from "expo-audio";
 import { router, SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -29,11 +28,9 @@ export default function RootLayout() {
     isLogged();
   }, []);
   return (
-    <ThemeProvider value={DarkTheme}>
-      <SafeAreaProvider style={{ backgroundColor: "black" }}>
-        <Stack screenOptions={{ headerShown: false }} />
-        <StatusBar />
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <SafeAreaProvider style={{ backgroundColor: "black" }}>
+      <Stack screenOptions={{ headerShown: false }} />
+      <StatusBar />
+    </SafeAreaProvider>
   );
 }
