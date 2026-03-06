@@ -30,7 +30,7 @@ export default function RootLayout() {
   }, []);
   return (
     <ThemeProvider value={DarkTheme}>
-      <SafeAreaProvider>
+      <SafeAreaProvider style={{ backgroundColor: "black" }}>
         <Stack screenOptions={{ headerShown: false }} />
         <StatusBar />
       </SafeAreaProvider>

@@ -71,7 +71,7 @@ export default function RoomPage() {
           onPress: leaveRoom,
           style: "destructive",
         },
-      ]
+      ],
     );
   };
 
@@ -91,7 +91,7 @@ export default function RoomPage() {
   if (!room) return;
 
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-black">
+    <SafeAreaView edges={["bottom"]} className="flex-1">
       <LeaveGameModal />
       <NavBar
         title={`Room ${room.code}`}

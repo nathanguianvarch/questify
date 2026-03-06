@@ -9,7 +9,7 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 export default function Profile() {
   const player = usePlayer((s) => s.player);
   return (
-    <View className="flex-1 bg-black">
+    <View className="flex-1">
       <NavBar
         title="Profil"
         leftContent={
