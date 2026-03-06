@@ -233,9 +233,9 @@ export default function GameInProgress({ room }: { room: Room }) {
         ) : (
           ""
         )}
-        <View className="w-fit h-full bg-red-500">
+        <View className="">
           <Text
-            className={`${seconds <= 5 ? "text-red-500" : "text-white/50"} text-xl font-bold`}
+            className={`${seconds <= 5 ? "text-red-500" : "text-white/50"} text-xl font-bold bg-red-500`}
           >
             {seconds}s
           </Text>
