@@ -1,10 +1,13 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"],
-      "shared": ["../shared/src"]
+      "@/*": [
+        "./*"
+      ],
+      "shared": [
+        "../shared/src"
+      ]
     }
   },
   "include": [
@@ -13,5 +16,6 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
-  ]
+  ],
+  "extends": "expo/tsconfig.base"
 }

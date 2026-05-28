@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "questify",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.nathanguianvarch.questify",
       "infoPlist": {
@@ -15,7 +14,6 @@
       }
     },
     "android": {
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.nathanguianvarch.questify",
       "permissions": [
@@ -40,7 +38,10 @@
       "expo-secure-store",
       "expo-web-browser",
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      "expo-font",
+      "expo-image",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,
