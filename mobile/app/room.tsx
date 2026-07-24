@@ -91,7 +91,7 @@ export default function RoomPage() {
   if (!room) return;
 
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1">
+    <SafeAreaView edges={["bottom"]} className="flex-1 bg-black">
       <LeaveGameModal />
       <NavBar
         title={`Room ${room.code}`}
