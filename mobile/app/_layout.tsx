@@ -28,9 +28,14 @@ export default function RootLayout() {
     isLogged();
   }, []);
   return (
-    <SafeAreaProvider style={{ backgroundColor: "black" }}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar />
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: "black" }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: "black" },
+        }}
+      />
+      <StatusBar style="light" backgroundColor="black" />
     </SafeAreaProvider>
   );
 }
