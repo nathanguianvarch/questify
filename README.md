@@ -1,4 +1,7 @@
-# Questify
+<h1 align="center">
+  Questify
+	<img src="./mobile/assets/images/mockup.png" alt="Chalk">
+</h1>
 
 **Un blindtest multijoueur où les questions portent sur les goûts musicaux de tes amis.**
 
