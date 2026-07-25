@@ -7,8 +7,6 @@ export const spotifyAccountURL = "https://accounts.spotify.com"
 export const spotifyApiURL = "https://api.spotify.com/v1"
 const serverURL = process.env.EXPO_PUBLIC_SERVER_URL ?? "http://localhost:3000"
 export const redirectionUri = makeRedirectUri({ scheme: "questify", path: "login" })
-const encodedCredentials = btoa(`${process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID}:${process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET}`);
-export const authorizationHeader = `Basic ${encodedCredentials}`;
 
 export const requestAccessToken = async (code: string) => {
   const url = new URL(`${serverURL}/spotify/accesstoken`);
