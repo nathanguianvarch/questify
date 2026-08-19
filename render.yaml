@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: questify-server
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+      - key: MUSICKIT_DEVELOPER_TOKEN
+        sync: false

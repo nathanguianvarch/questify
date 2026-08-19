@@ -20,9 +20,22 @@ export type Artist = {
 export type Track = {
   id: string;
   title: string;
-  artists: { id: string; name: string }[];
+  artists: { name: string }[];
   cover: string;
   previewUrl?: string;
+};
+
+export type Playlist = {
+  id: string;
+  title: string;
+  cover: string;
+};
+
+export type Album = {
+  id: string;
+  title: string;
+  artists: { name: string }[];
+  cover: string;
 };
 
 export type ArtistQuestion = BaseGameQuestion & {

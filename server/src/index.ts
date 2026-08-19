@@ -5,6 +5,8 @@ import path from "path";
 import { Server } from "socket.io";
 
 import { ClientToServerEvents, ServerToClientEvents } from 'shared';
+import { albumRouter } from './routes/album.routes';
+import { playlistRouter } from './routes/playlist.routes';
 import { spotifyRouter } from './routes/spotify.routes';
 import { initSockets } from './socket';
 
@@ -29,6 +31,9 @@ app.get('/', (req, res) => {
 })
 
 app.use("/spotify", spotifyRouter)
+
+app.use("/playlist", playlistRouter)
+app.use("/album", albumRouter)
 
 app.use(
   "/assets",
@@ -63,6 +68,7 @@ app.get('/share/:roomCode', (req, res) => {
   `);
 })
 
-server.listen(3000, () => {
-  console.log(`Questify server listening on port 3000`)
+const port = Number(process.env.PORT) || 3000;
+server.listen(port, () => {
+  console.log(`Questify server listening on port ${port}`)
 })

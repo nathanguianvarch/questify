@@ -1,6 +1,13 @@
 import { spotifyApiURL } from "@/routes/spotify.routes"
 import { Track } from "shared"
 
+type SpotifyTrackItem = {
+  id: string;
+  name: string;
+  artists: { id: string; name: string }[];
+  album: { images: { url: string }[] };
+};
+
 export const requestPreviewSongAudio = async (id: string) => {
   const response = await fetch(`https://open.spotify.com/embed/track/${id}`)
   const result = await response.text()
@@ -19,10 +26,13 @@ export const requestArtistTopTracks = async (artistId: string, authorization: st
   })
 
   if (response.ok) {
-    const result = await response.json();
-    const tracks = result.tracks.map((item: any) => {
-      return { id: item.id, title: item.name, artists: item.artists, cover: item.album.images[0].url };
-    });
+    const result: { tracks: SpotifyTrackItem[] } = await response.json();
+    const tracks = result.tracks.map((item) => ({
+      id: item.id,
+      title: item.name,
+      artists: item.artists,
+      cover: item.album.images[0]?.url,
+    }));
     return tracks;
   } else {
     throw new Error("Failed to fetch artist top tracks");
@@ -40,8 +50,8 @@ export const requestTrack = async (trackId: string, authorization: string): Prom
   })
 
   if (response.ok) {
-    const result = await response.json();
-    return { id: result.id, title: result.name, artists: result.artists, cover: result.album.images[0].url };
+    const result: SpotifyTrackItem = await response.json();
+    return { id: result.id, title: result.name, artists: result.artists, cover: result.album.images[0]?.url };
   } else {
     throw new Error("Failed to fetch track");
   }
