@@ -1,4 +1,5 @@
 import { ChevronRight, Crown } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Player } from "shared";
 
@@ -17,6 +18,7 @@ export default function PlayerRow({
   canManage = false,
   onPress,
 }: PlayerRowProps) {
+  const { t } = useTranslation();
   const initial = player.username.trim().charAt(0).toUpperCase() || "?";
 
   return (
@@ -26,14 +28,14 @@ export default function PlayerRow({
       onPress={onPress}
       accessibilityRole={canManage ? "button" : undefined}
       accessibilityLabel={
-        canManage ? `Gérer ${player.username}` : player.username
+        canManage
+          ? t("room.managePlayer", { username: player.username })
+          : player.username
       }
     >
       <View className="flex flex-row gap-3 items-center">
         <View className="w-11 h-11 rounded-full bg-[#00D560]/15 border border-[#00D560]/40 items-center justify-center">
-          <Text className="text-[#00D560] text-base font-bold">
-            {initial}
-          </Text>
+          <Text className="text-[#00D560] text-base font-bold">{initial}</Text>
         </View>
         <Text className="text-white font-semibold text-lg">
           {player.username}

@@ -3,7 +3,10 @@ import { Player } from "./player";
 export type BaseGameQuestion = {
   id: number;
   type: "artist" | "player" | "track";
+  /** Texte déjà rédigé, conservé comme repli si le client ne connaît pas la clé. */
   question: string;
+  /** Clé i18n de l'énoncé, traduite côté client (`game.questions.<clé>`). */
+  questionKey?: "track";
   playersAnswerState?: { [playerId: string]: AnswerState };
   previewTrack?: Track
 };
@@ -36,6 +39,28 @@ export type Album = {
   title: string;
   artists: { name: string }[];
   cover: string;
+};
+
+/** Album ou playlist du catalogue Apple Music, tel qu'affiché dans le sélecteur de thème. */
+export type MusicSourceItem = {
+  type: "playlist" | "album";
+  id: string;
+  title: string;
+  cover: string;
+  /** Artistes pour un album, curateur pour une playlist. */
+  subtitle?: string;
+};
+
+/** Rangée de recommandations (top charts, charts par genre, nouveautés...). */
+export type MusicSection = {
+  id: string;
+  title: string;
+  items: MusicSourceItem[];
+};
+
+export type MusicSearchResults = {
+  playlists: MusicSourceItem[];
+  albums: MusicSourceItem[];
 };
 
 export type ArtistQuestion = BaseGameQuestion & {

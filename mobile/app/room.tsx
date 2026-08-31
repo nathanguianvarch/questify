@@ -9,10 +9,12 @@ import WaitingScreen from "@/screens/WaitingScreen";
 import { router } from "expo-router";
 import { LogOut, Settings } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RoomPage() {
+  const { t } = useTranslation();
   const { room, score, leaveRoom } = useRoomSocket();
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);
 
@@ -31,12 +33,12 @@ export default function RoomPage() {
         onConfirm={confirmLeaveRoom}
       />
       <NavBar
-        title={`Room ${room.code}`}
+        title={t("room.title", { code: room.code })}
         rightContent={
           <TouchableOpacity
             onPress={() => setLeaveModalVisible(true)}
             accessibilityRole="button"
-            accessibilityLabel="Quitter la partie"
+            accessibilityLabel={t("room.leaveAccessibility")}
           >
             <LogOut height={28} width={28} color={COLORS.error} />
           </TouchableOpacity>
@@ -46,7 +48,7 @@ export default function RoomPage() {
             <TouchableOpacity
               onPress={() => router.push("/settings-room")}
               accessibilityRole="button"
-              accessibilityLabel="Paramètres de la partie"
+              accessibilityLabel={t("room.settingsAccessibility")}
             >
               <Settings height={28} width={28} color={COLORS.white} />
             </TouchableOpacity>

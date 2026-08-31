@@ -48,7 +48,8 @@
       "expo-video",
       "expo-image",
       "expo-status-bar",
-      "expo-system-ui"
+      "expo-system-ui",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

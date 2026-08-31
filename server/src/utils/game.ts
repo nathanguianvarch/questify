@@ -104,6 +104,7 @@ export const generateRandomQuestions = async (
         id: questions.length,
         type: "track",
         question: `Quelle est cette musique ?`,
+        questionKey: "track",
         answers,
         previewTrack: {
           artists: [],

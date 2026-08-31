@@ -9,9 +9,11 @@ import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { getItemAsync } from "expo-secure-store";
 import { ArrowRight, Gamepad2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, Text, View } from "react-native";
 
 export default function Index() {
+  const { t } = useTranslation();
   const tabBarHeight = useBottomTabBarHeight();
   const [roomCode, setRoomCode] = useState("");
   const [pseudoChecked, setPseudoChecked] = useState(false);
@@ -40,7 +42,7 @@ export default function Index() {
   return (
     <View className="flex-1 bg-black">
       <NavBar
-        title="Questify"
+        title={t("lobby.title")}
         leftContent={
           <View className="bg-white/10 rounded-full flex flex-row gap-1.5 px-3 py-2 items-center">
             <Text className="text-white font-semibold text-center text-lg">
@@ -63,7 +65,7 @@ export default function Index() {
             onClick={() => joinRoom(roomCode)}
             disabled={roomCode.length !== 4 || !hasPseudo}
             loading={isJoiningRoom}
-            accessibilityLabel="Rejoindre la partie"
+            accessibilityLabel={t("lobby.joinAccessibility")}
           >
             <ArrowRight className="mr-2" size={24} color="black" />
           </Bouton>
@@ -74,19 +76,18 @@ export default function Index() {
           disabled={!hasPseudo}
           loading={isCreatingRoom}
         >
-          Créer une partie
+          {t("lobby.createRoom")}
         </Bouton>
 
         {!hasPseudo && (
           <Text className="text-white/50 text-lg font-semibold">
-            Ajoute un pseudo dans les paramètres pour créer ou rejoindre une
-            partie
+            {t("lobby.missingUsername")}
           </Text>
         )}
 
         <View className="flex flex-col gap-2">
           <Text className="text-white font-semibold text-xl">
-            Parties publiques :
+            {t("lobby.publicRooms")}
           </Text>
           {activeRooms.length > 0 ? (
             <ScrollView
@@ -107,7 +108,7 @@ export default function Index() {
           ) : (
             <View className="bg-white/5 rounded-2xl p-6 items-center">
               <Text className="text-white/50 text-lg font-semibold text-center">
-                Aucune partie publique
+                {t("lobby.noPublicRoom")}
               </Text>
             </View>
           )}
