@@ -1,6 +1,7 @@
 import { formatNumber } from "@/utils/format";
 import * as Haptics from "expo-haptics";
 import { MotiView } from "moti";
+import { useTranslation } from "react-i18next";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { AnswerState, Artist, Player, Track } from "shared";
 
@@ -69,6 +70,7 @@ export default function Answer<T extends keyof AnswerByType>({
   disabled,
   players = [],
 }: AnswerProps<T>) {
+  const { t } = useTranslation();
   let buttonStateStyle = "";
   if (state === "unanswered") {
     buttonStateStyle = "bg-white/10";
@@ -104,7 +106,7 @@ export default function Answer<T extends keyof AnswerByType>({
               className="text-white/50 font-semibold text-xl"
               numberOfLines={1}
             >
-              {formatNumber(artist.followers)} followers
+              {t("game.followers", { value: formatNumber(artist.followers) })}
             </Text>
           </View>
         </View>

@@ -6,10 +6,12 @@ import { useServerTime } from "@/hooks/useServerTime";
 import { socket } from "@/hooks/useSocket";
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Text, View } from "react-native";
 import { AnswerState, GameQuestion, Room } from "shared";
 
 export default function GameInProgress({ room }: { room: Room }) {
+  const { t } = useTranslation();
   const [endQuestionAt, setEndQuestionAt] = useState<number | null>(
     room.currentQuestionEndsAt ?? null,
   );
@@ -106,10 +108,15 @@ export default function GameInProgress({ room }: { room: Room }) {
       <View className="m-4 flex-1 justify-between">
         <View className="flex flex-col gap-3">
           <Text className="text-white/50 text-center text-xl font-bold leading-none">
-            Question {currentQuestion.id + 1} sur {room.questions.length}
+            {t("game.progress", {
+              current: currentQuestion.id + 1,
+              total: room.questions.length,
+            })}
           </Text>
           <Text className="text-white font-bold text-3xl text-center leading-none">
-            {currentQuestion.question}
+            {currentQuestion.questionKey
+              ? t(`game.questions.${currentQuestion.questionKey}`)
+              : currentQuestion.question}
           </Text>
           {remainingSeconds !== null && (
             <View className="my-2">

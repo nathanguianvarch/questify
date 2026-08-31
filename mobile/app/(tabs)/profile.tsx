@@ -1,17 +1,26 @@
 import NavBar from "@/components/NavBar";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import { usePlayer } from "@/hooks/usePlayer";
 import { useRoom } from "@/hooks/useRoom";
+import {
+  isSupportedLanguage,
+  LANGUAGE_LABELS,
+  setLanguage,
+  SUPPORTED_LANGUAGES,
+} from "@/i18n";
 import { router } from "expo-router";
 import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { deleteItemAsync, setItemAsync } from "expo-secure-store";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, Text, View } from "react-native";
 
 const SAVE_DELAY_MS = 100;
 
 export default function Profile() {
+  const { t, i18n } = useTranslation();
   const tabBarHeight = useBottomTabBarHeight();
   const setPlayer = usePlayer((s) => s.setPlayer);
   const updatePlayer = usePlayer((s) => s.updatePlayer);
@@ -44,30 +53,29 @@ export default function Profile() {
   }, [isSaving, trimmedUsername, updatePlayer]);
 
   const resetData = () => {
-    Alert.alert(
-      "Réinitialiser mes données",
-      "Ton pseudo sera supprimé et tu devras le choisir à nouveau. Continuer ?",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Réinitialiser",
-          style: "destructive",
-          onPress: async () => {
-            await deleteItemAsync("username");
-            setPlayer({ username: "", cover: "" });
-            clearRoom();
-            router.replace("/onboarding");
-          },
+    Alert.alert(t("profile.reset"), t("profile.resetConfirmation"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("profile.resetAction"),
+        style: "destructive",
+        onPress: async () => {
+          await deleteItemAsync("username");
+          setPlayer({ username: "", cover: "" });
+          clearRoom();
+          router.replace("/onboarding");
         },
-      ],
-    );
+      },
+    ]);
   };
 
   const initial = trimmedUsername.charAt(0).toUpperCase() || "?";
+  const currentLanguage = isSupportedLanguage(i18n.language)
+    ? i18n.language
+    : undefined;
 
   return (
     <View className="flex-1 bg-black">
-      <NavBar title="Profil" />
+      <NavBar title={t("profile.title")} />
       <ScrollView
         contentContainerClassName="p-5 gap-8"
         contentContainerStyle={{ paddingBottom: tabBarHeight + 20 }}
@@ -85,35 +93,48 @@ export default function Profile() {
 
         <View className="gap-3">
           <Text className="text-white/40 text-sm font-semibold uppercase tracking-wider px-1">
-            Identité
+            {t("profile.settings")}
           </Text>
-          <View className="bg-[#141414] rounded-3xl p-4 gap-3">
-            <Text className="text-white font-semibold text-lg">
-              Nom d&apos;utilisateur
-            </Text>
-            <Input
-              value={username}
-              keyboard="default"
-              onChangeText={(value) => setUsername(value)}
-              maxLength={16}
-            ></Input>
+          <View className="bg-[#141414] rounded-3xl px-4 gap-3">
+            <View className="gap-2 py-4 border-b border-white/5">
+              <Text className="text-white font-semibold text-lg">
+                {t("profile.username")}
+              </Text>
+              <Input
+                value={username}
+                keyboard="default"
+                onChangeText={(value) => setUsername(value)}
+                maxLength={16}
+              ></Input>
+            </View>
+            <View className="flex flex-row gap-2 items-center justify-between py-4">
+              <Text className="text-white font-semibold text-lg">
+                {t("profile.language")}
+              </Text>
+              <SegmentedControl
+                options={[...SUPPORTED_LANGUAGES]}
+                value={currentLanguage}
+                getLabel={(language) => LANGUAGE_LABELS[language]}
+                onChange={(language) => language && setLanguage(language)}
+              />
+            </View>
           </View>
         </View>
 
         <View className="gap-3">
           <Text className="text-white/40 text-sm font-semibold uppercase tracking-wider px-1">
-            Données
+            {t("profile.data")}
           </Text>
           <View className="bg-[#FF6367]/10 border border-[#FF6367]/30 rounded-3xl p-4 gap-2">
             <Text className="text-white font-semibold text-lg">
-              Réinitialiser mes données
+              {t("profile.reset")}
             </Text>
             <Button
               backgroundColor="error"
               onClick={resetData}
               className="mt-1"
             >
-              Réinitialiser
+              {t("profile.resetAction")}
             </Button>
           </View>
         </View>

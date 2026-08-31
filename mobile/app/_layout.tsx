@@ -1,8 +1,9 @@
 import { COLORS } from "@/constants/theme";
+import { restoreStoredLanguage } from "@/i18n";
 import { setAudioModeAsync } from "expo-audio";
 import { DarkTheme, Stack, ThemeProvider } from "expo-router";
 import { CircleCheck, CircleX, Info, TriangleAlert } from "lucide-react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -10,6 +11,8 @@ import { Toaster } from "sonner-native";
 import "../global.css";
 
 export default function RootLayout() {
+  const [languageReady, setLanguageReady] = useState(false);
+
   useEffect(() => {
     if (Platform.OS === "ios") {
       setAudioModeAsync({
@@ -18,6 +21,13 @@ export default function RootLayout() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    restoreStoredLanguage().finally(() => setLanguageReady(true));
+  }, []);
+
+  if (!languageReady) return null;
+
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView>

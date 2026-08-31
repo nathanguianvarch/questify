@@ -6,10 +6,12 @@ import { useRoom } from "./useRoom";
 import { socket } from "./useSocket";
 import { useSocketEvent } from "./useSocketEvent";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const CREATE_ROOM_TIMEOUT_MS = 8000;
 
 export function useLobby() {
+  const { t } = useTranslation();
   const [activeRooms, setActiveRooms] = useState<Room[]>([]);
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const [isJoiningRoom, setIsJoiningRoom] = useState(false);
@@ -28,7 +30,7 @@ export function useLobby() {
 
   const requirePseudo = () => {
     if (!player.username.trim()) {
-      toast.error("Ajoute un pseudo dans les paramètres pour jouer");
+      toast.error(t("lobby.errors.missingUsername"));
       router.push("/profile");
       return false;
     }
@@ -50,7 +52,7 @@ export function useLobby() {
     const timeout = setTimeout(() => {
       socket.off("roomCreated", onRoomCreated);
       setIsCreatingRoom(false);
-      toast.error("Impossible de créer la partie, réessaie");
+      toast.error(t("lobby.errors.createFailed"));
     }, CREATE_ROOM_TIMEOUT_MS);
 
     socket.once("roomCreated", onRoomCreated);
@@ -59,7 +61,7 @@ export function useLobby() {
 
   const joinRoom = (code: string, options?: { onFail?: () => void }) => {
     if (!code) {
-      toast.error("Veuillez entrer un code de room");
+      toast.error(t("lobby.errors.missingCode"));
       return;
     }
     if (!requirePseudo()) return;
@@ -78,13 +80,13 @@ export function useLobby() {
 
     const onRoomFull = (fullRoomCode: string) => {
       cleanup();
-      toast.error(`La room ${fullRoomCode} est pleine`);
+      toast.error(t("lobby.errors.roomFull", { code: fullRoomCode }));
       options?.onFail?.();
     };
 
     const onRoomNotExists = (missingRoomCode: string) => {
       cleanup();
-      toast.error(`La room ${missingRoomCode} n'existe pas`);
+      toast.error(t("lobby.errors.roomNotFound", { code: missingRoomCode }));
       options?.onFail?.();
     };
 
@@ -95,7 +97,7 @@ export function useLobby() {
 
     const timeout = setTimeout(() => {
       cleanup();
-      toast.error("Impossible de rejoindre la partie, réessaie");
+      toast.error(t("lobby.errors.joinFailed"));
       options?.onFail?.();
     }, CREATE_ROOM_TIMEOUT_MS);
 

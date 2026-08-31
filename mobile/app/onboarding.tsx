@@ -7,10 +7,12 @@ import { setItemAsync } from "expo-secure-store";
 import { ArrowRight } from "lucide-react-native";
 import { View } from "moti";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Image, KeyboardAvoidingView, Platform, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Onboarding() {
+  const { t } = useTranslation();
   const setPlayer = usePlayer((s) => s.setPlayer);
   const [username, setUsername] = useState("");
   const [saving, setSaving] = useState(false);
@@ -55,10 +57,10 @@ export default function Onboarding() {
                 transition={{ type: "timing", duration: 500, delay: 100 }}
               >
                 <Text className="text-white text-4xl font-bold text-center">
-                  Bienvenue sur Questify
+                  {t("onboarding.title")}
                 </Text>
                 <Text className="text-white/50 text-lg font-semibold text-center">
-                  Le blindtest musical entre amis
+                  {t("onboarding.subtitle")}
                 </Text>
               </View>
             </View>
@@ -71,12 +73,12 @@ export default function Onboarding() {
                 transition={{ type: "timing", duration: 500, delay: 200 }}
               >
                 <Text className="text-white/60 text-lg font-semibold ml-1">
-                  Choisis ton pseudo
+                  {t("onboarding.usernameLabel")}
                 </Text>
                 <Input
                   value={username}
                   onChangeText={setUsername}
-                  placeholder="Pseudo"
+                  placeholder={t("onboarding.usernamePlaceholder")}
                   maxLength={16}
                   autoFocus
                   autoCorrect={false}
@@ -96,7 +98,7 @@ export default function Onboarding() {
                   className="gap-2"
                 >
                   <Text className="text-black text-2xl font-semibold">
-                    Commencer à jouer
+                    {t("onboarding.start")}
                   </Text>
                   <ArrowRight color="black" size={22} />
                 </Button>

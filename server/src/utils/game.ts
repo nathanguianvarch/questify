@@ -14,6 +14,13 @@ type MusicKitSong = {
   };
 };
 
+export class GameGenerationError extends Error {
+  constructor(public readonly reason: "not_enough_tracks" | "catalog_unavailable") {
+    super(reason);
+    this.name = "GameGenerationError";
+  }
+}
+
 const shuffle = <T>(array: T[]): T[] =>
   [...array].sort(() => Math.random() - 0.5);
 
@@ -36,8 +43,12 @@ const fetchDefaultPlaylistId = async (token: string): Promise<string> => {
       Authorization: `Bearer ${token}`
     }
   });
-  const result: { results: { playlists: { data: { id: string }[] }[] } } = await response.json();
-  return result.results.playlists[0].data[0].id;
+  if (!response.ok) throw new GameGenerationError("catalog_unavailable");
+
+  const result: { results?: { playlists?: { data?: { id: string }[] }[] } } = await response.json();
+  const playlistId = result.results?.playlists?.[0]?.data?.[0]?.id;
+  if (!playlistId) throw new GameGenerationError("catalog_unavailable");
+  return playlistId;
 };
 
 const fetchSongs = async (room: Room, token: string): Promise<Track[]> => {
@@ -54,7 +65,10 @@ const fetchSongs = async (room: Room, token: string): Promise<Track[]> => {
       Authorization: `Bearer ${token}`
     }
   });
-  const result: { data: MusicKitSong[] } = await response.json();
+  if (!response.ok) throw new GameGenerationError("catalog_unavailable");
+
+  const result: { data?: MusicKitSong[] } = await response.json();
+  if (!Array.isArray(result.data)) throw new GameGenerationError("catalog_unavailable");
   return mapSongs(result.data);
 };
 
@@ -63,64 +77,66 @@ export const generateRandomQuestions = async (
   number: number
 ): Promise<GameQuestion[]> => {
   const questions: GameQuestion[] = [];
+  const answerIndexes: Record<number, number> = {};
 
-  correctAnswerIndex[room.code] = {};
-
-  try {
-    const token = process.env.MUSICKIT_DEVELOPER_TOKEN
-    if (!token) {
-      throw new Error("MUSICKIT_DEVELOPER_TOKEN manquant")
-    }
-
-    const songs = await fetchSongs(room, token);
-    const usedQuestionTrackIds = new Set<string>();
-    const usedAnswerIds = new Set<string>();
-
-    for (let i = 0; i < number; i++) {
-      const unusedSongs = songs.filter((song) => !usedQuestionTrackIds.has(song.id));
-      const questionPool = unusedSongs.length > 0 ? unusedSongs : songs;
-
-      const correctAnswer = questionPool[Math.floor(Math.random() * questionPool.length)];
-      usedQuestionTrackIds.add(correctAnswer.id);
-
-      const freshWrongAnswerPool = shuffle(
-        songs.filter((song) => song.id !== correctAnswer.id && !usedAnswerIds.has(song.id))
-      );
-      const fallbackWrongAnswerPool = shuffle(songs.filter((song) => song.id !== correctAnswer.id));
-      const wrongAnswerPool = freshWrongAnswerPool.length >= 3 ? freshWrongAnswerPool : fallbackWrongAnswerPool;
-      const wrongAnswers = wrongAnswerPool.slice(0, 3);
-      while (wrongAnswers.length < 3 && songs.length > 0) {
-        wrongAnswers.push(songs[Math.floor(Math.random() * songs.length)]);
-      }
-
-      const answers = shuffle([correctAnswer, ...wrongAnswers]);
-      answers.forEach((answer) => usedAnswerIds.add(answer.id));
-
-      correctAnswerIndex[room.code][questions.length] = answers.indexOf(
-        correctAnswer
-      );
-
-      questions.push({
-        id: questions.length,
-        type: "track",
-        question: `Quelle est cette musique ?`,
-        answers,
-        previewTrack: {
-          artists: [],
-          cover: "",
-          id: "0",
-          title: "",
-          previewUrl: correctAnswer.previewUrl,
-        },
-      });
-    }
+  const token = process.env.MUSICKIT_DEVELOPER_TOKEN
+  if (!token) {
+    throw new GameGenerationError("catalog_unavailable")
   }
 
-  catch (e) {
-    if (e instanceof Error) {
-      console.log(e.message)
-    }
-    throw e
+  // Une question a besoin d'un extrait et de trois propositions différentes.
+  // On déduplique le catalogue avant de démarrer la partie pour éviter une
+  // question sans son ou avec des réponses ambiguës.
+  const songs = Array.from(
+    new Map(
+      (await fetchSongs(room, token))
+        .filter((song) => Boolean(song.previewUrl))
+        .map((song) => [song.id, song]),
+    ).values(),
+  );
+  if (songs.length < 4) {
+    throw new GameGenerationError("not_enough_tracks");
   }
+
+  const usedQuestionTrackIds = new Set<string>();
+  const usedAnswerIds = new Set<string>();
+
+  for (let i = 0; i < number; i++) {
+    const unusedSongs = songs.filter((song) => !usedQuestionTrackIds.has(song.id));
+    const questionPool = unusedSongs.length > 0 ? unusedSongs : songs;
+
+    const correctAnswer = questionPool[Math.floor(Math.random() * questionPool.length)];
+    usedQuestionTrackIds.add(correctAnswer.id);
+
+    const freshWrongAnswerPool = shuffle(
+      songs.filter((song) => song.id !== correctAnswer.id && !usedAnswerIds.has(song.id))
+    );
+    const fallbackWrongAnswerPool = shuffle(songs.filter((song) => song.id !== correctAnswer.id));
+    const wrongAnswerPool = freshWrongAnswerPool.length >= 3 ? freshWrongAnswerPool : fallbackWrongAnswerPool;
+    const wrongAnswers = wrongAnswerPool.slice(0, 3);
+
+    const answers = shuffle([correctAnswer, ...wrongAnswers]);
+    answers.forEach((answer) => usedAnswerIds.add(answer.id));
+
+    answerIndexes[questions.length] = answers.indexOf(
+      correctAnswer
+    );
+
+    questions.push({
+      id: questions.length,
+      type: "track",
+      question: `Quelle est cette musique ?`,
+      questionKey: "track",
+      answers,
+      previewTrack: {
+        artists: [],
+        cover: "",
+        id: "0",
+        title: "",
+        previewUrl: correctAnswer.previewUrl,
+      },
+    });
+  }
+  correctAnswerIndex[room.code] = answerIndexes;
   return questions;
 };

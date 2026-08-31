@@ -3,8 +3,8 @@ import { emitActiveRooms, rooms } from "@/state/room.state";
 import { score } from "@/state/score.state";
 import { lockedRooms, questionTimers } from "@/state/timer.state";
 import { AppServer, AppSocket } from "@/types/socket";
-import { generateRandomQuestions } from "@/utils/game";
-import { GameQuestion, Player, Room } from "shared";
+import { GameGenerationError, generateRandomQuestions } from "@/utils/game";
+import { GameQuestion, GameStartFailureReason, Player, Room } from "shared";
 
 type SocketContext = {
   io: AppServer;
@@ -28,6 +28,7 @@ export const registerRoomSockets = async (io: AppServer, socket: AppSocket) => {
 
 const BASE_POINTS = 1000;
 const MIN_SPEED_MULTIPLIER = 0.5;
+const roomsStarting = new Set<string>();
 
 const computeAnswerPoints = (room: Room) => {
   if (room.settings.timePerQuestion === 0) return BASE_POINTS;
@@ -218,24 +219,45 @@ const startGame = ({ io, socket }: SocketContext) => async (roomCode: string, nu
   const room = rooms[roomCode]
   if (!room) return;
   if (room.hostSocketId !== socket.id) return;
+  if (room.status !== "waiting") return;
+  if (roomsStarting.has(room.code)) return;
 
-  room.status = "in_progress"
+  const failToStart = (reason: GameStartFailureReason) => {
+    socket.emit("gameStartFailed", reason);
+  };
+  roomsStarting.add(room.code);
+  try {
+    if (!Number.isInteger(numberOfQuestions) || numberOfQuestions < 1 || numberOfQuestions > 50) {
+      failToStart("invalid_configuration");
+      return;
+    }
 
-  const questions: GameQuestion[] = await generateRandomQuestions(room, numberOfQuestions);
+    // Tant que la génération n'est pas terminée, le salon reste joignable et
+    // l'hôte peut relancer l'action en cas d'échec du catalogue.
+    const questions: GameQuestion[] = await generateRandomQuestions(room, numberOfQuestions);
 
-  room.questions = questions
-  room.currentQuestion = room.questions[0]
-  room.answers = {};
+    room.status = "in_progress";
+    room.questions = questions
+    room.currentQuestion = room.questions[0]
+    room.answers = {};
 
-  for (const player of room.players) {
-    if (!player.socketId) continue;
-    score[room.code] = score[room.code] || {};
-    score[room.code][player.socketId] = 0;
+    for (const player of room.players) {
+      if (!player.socketId) continue;
+      score[room.code] = score[room.code] || {};
+      score[room.code][player.socketId] = 0;
+    }
+
+    startQuestionTimer(io, room);
+
+    io.to(roomCode).emit("roomUpdated", room)
+  } catch (error) {
+    const reason: GameStartFailureReason =
+      error instanceof GameGenerationError ? error.reason : "catalog_unavailable";
+    console.error(`Impossible de démarrer la partie ${room.code}: ${reason}`);
+    failToStart(reason);
+  } finally {
+    roomsStarting.delete(room.code);
   }
-
-  startQuestionTimer(io, room);
-
-  io.to(roomCode).emit("roomUpdated", room)
 }
 
 const replayGame = ({ io, socket }: SocketContext) => (roomCode: string) => {

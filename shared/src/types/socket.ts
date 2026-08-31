@@ -2,6 +2,11 @@ import { AnswerState, GameQuestion, PlayerScore } from "./game";
 import { Player } from "./player";
 import { Room } from "./room";
 
+export type GameStartFailureReason =
+  | "not_enough_tracks"
+  | "invalid_configuration"
+  | "catalog_unavailable";
+
 export interface ServerToClientEvents {
   roomCreated: (room: Room) => void;
   roomUpdated: (room: Room) => void;
@@ -18,6 +23,7 @@ export interface ServerToClientEvents {
   playerLeft: (player: Player) => void;
   playerKicked: (player: Player) => void;
   gameStarted: (room: Room) => void;
+  gameStartFailed: (reason: GameStartFailureReason) => void;
   gameEnded: (room: Room) => void;
   kicked: (roomCode: string) => void;
 }

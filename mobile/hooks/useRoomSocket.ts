@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PlayerScore } from "shared";
 import { toast } from "sonner-native";
 import { useRoom } from "./useRoom";
@@ -7,6 +8,7 @@ import { socket } from "./useSocket";
 import { useSocketEvent } from "./useSocketEvent";
 
 export function useRoomSocket() {
+  const { t } = useTranslation();
   const [score, setScore] = useState<PlayerScore | null>(null);
 
   const room = useRoom((s) => s.room);
@@ -24,11 +26,11 @@ export function useRoomSocket() {
   });
 
   useSocketEvent("playerLeft", (player) => {
-    toast.info(`${player.username} a quitté la partie`);
+    toast.info(t("room.playerLeft", { username: player.username }));
   });
 
   useSocketEvent("playerKicked", (player) => {
-    toast.info(`${player.username} a été exclu de la partie`);
+    toast.info(t("room.playerKicked", { username: player.username }));
   });
 
   useSocketEvent("gameStarted", (room) => {

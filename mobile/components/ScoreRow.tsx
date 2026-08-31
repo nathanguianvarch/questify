@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type ScoreRowProps = {
@@ -13,6 +14,8 @@ const MEDALS: Record<number, string> = {
 };
 
 export default function ScoreRow({ username, score, rank }: ScoreRowProps) {
+  const { t } = useTranslation();
+
   return (
     <TouchableOpacity
       className="bg-white/10 rounded-3xl p-2 flex flex-row items-center justify-between"
@@ -26,7 +29,7 @@ export default function ScoreRow({ username, score, rank }: ScoreRowProps) {
       </View>
       <View className="mr-2">
         <Text className="text-white font-semibold text-xl">
-          {score.toLocaleString("fr-FR")} point{score !== 1 ? "s" : ""}
+          {t("game.points", { count: score })}
         </Text>
       </View>
     </TouchableOpacity>

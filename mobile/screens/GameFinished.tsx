@@ -2,6 +2,7 @@ import Confetti from "@/components/Confetti";
 import ScoreRow from "@/components/ScoreRow";
 import Button from "@/components/ui/Button";
 import { socket } from "@/hooks/useSocket";
+import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import { PlayerScore, Room } from "shared";
 
@@ -11,6 +12,7 @@ type GameFinishedProps = {
 };
 
 export default function GameFinished({ room, score }: GameFinishedProps) {
+  const { t } = useTranslation();
   const isHost = room.hostSocketId === socket.id;
 
   const topScore = Math.max(...Object.values(score));
@@ -27,7 +29,7 @@ export default function GameFinished({ room, score }: GameFinishedProps) {
       <View></View>
       <View className="flex flex-col gap-4">
         <Text className="text-center text-white font-bold text-3xl">
-          Résultats
+          {t("game.results")}
         </Text>
         <View className="flex flex-col gap-2">
           {Object.entries(score)
@@ -48,11 +50,11 @@ export default function GameFinished({ room, score }: GameFinishedProps) {
       </View>
       {isHost ? (
         <Button backgroundColor="info" onClick={replayGame}>
-          Rejouer
+          {t("game.replay")}
         </Button>
       ) : (
         <Text className="text-center text-white/50 font-semibold text-lg">
-          En attente de l&apos;hôte pour relancer une partie
+          {t("game.waitingForHost")}
         </Text>
       )}
     </View>

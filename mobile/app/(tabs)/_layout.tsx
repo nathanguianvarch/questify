@@ -2,8 +2,11 @@ import TabBar from "@/components/ui/TabBar";
 import { COLORS } from "@/constants/theme";
 import Tabs from "expo-router/js-tabs";
 import { Gamepad2, UserRound } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -15,7 +18,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Game",
+          title: t("tabs.game"),
           tabBarIcon: ({ color, size }) => (
             <Gamepad2 color={color} size={size} />
           ),
@@ -24,7 +27,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: t("tabs.profile"),
           tabBarIcon: ({ color, size }) => (
             <UserRound color={color} size={size} />
           ),

@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 
 import { ClientToServerEvents, ServerToClientEvents } from 'shared';
 import { albumRouter } from './routes/album.routes';
+import { musicRouter } from './routes/music.routes';
 import { playlistRouter } from './routes/playlist.routes';
 import { spotifyRouter } from './routes/spotify.routes';
 import { initSockets } from './socket';
@@ -34,6 +35,7 @@ app.use("/spotify", spotifyRouter)
 
 app.use("/playlist", playlistRouter)
 app.use("/album", albumRouter)
+app.use("/music", musicRouter)
 
 app.use(
   "/assets",
