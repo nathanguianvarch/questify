@@ -1,0 +1,4 @@
+mobile
+**/node_modules
+**/.git
+**/*.log

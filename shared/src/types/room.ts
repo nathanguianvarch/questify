@@ -3,15 +3,26 @@ import { Player } from "./player";
 
 export type Room = {
   code: string;
-  hostSocketId: string;
+  hostSocketId: string | undefined;
   players: Player[];
-  seats: number;
+  settings: {
+    numberOfQuestions: number;
+    seats: number;
+    timePerQuestion: number;
+    musicSource?: MusicSource;
+    isPrivate: boolean;
+  }
   status: RoomStatus;
 
   questions?: GameQuestion[]
-  timePerQuestion: number;
   currentQuestion?: GameQuestion;
+  currentQuestionEndsAt?: number;
   answers?: Record<string, number>
 };
 
 export type RoomStatus = "waiting" | "in_progress" | "finished";
+
+export type MusicSource = {
+  type: "playlist" | "album";
+  id: string;
+};
