@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun --inspect --watch src/index.ts",
     "build": "tsc --outDir dist",
-    "start": "bun dist/server/src/index.js"
+    "start": "bun dist/server/src/index.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "cors": "^2.8.5",

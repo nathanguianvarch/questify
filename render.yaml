@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: questify-server
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: MUSICKIT_DEVELOPER_TOKEN
+        sync: false

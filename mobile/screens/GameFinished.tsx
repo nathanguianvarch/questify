@@ -1,5 +1,9 @@
-import Button from "@/components/Button";
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import Confetti from "@/components/Confetti";
+import ScoreRow from "@/components/ScoreRow";
+import Button from "@/components/ui/Button";
+import { socket } from "@/hooks/useSocket";
+import { useTranslation } from "react-i18next";
+import { Text, View } from "react-native";
 import { PlayerScore, Room } from "shared";
 
 type GameFinishedProps = {
@@ -8,44 +12,51 @@ type GameFinishedProps = {
 };
 
 export default function GameFinished({ room, score }: GameFinishedProps) {
+  const { t } = useTranslation();
+  const isHost = room.hostSocketId === socket.id;
+
+  const topScore = Math.max(...Object.values(score));
+  const ownScore = socket.id !== undefined ? score[socket.id] : undefined;
+  const isWinner = ownScore !== undefined && ownScore === topScore;
+
+  const replayGame = () => {
+    socket.emit("replayGame", room.code);
+  };
+
   return (
     <View className="m-4 flex-1 justify-between">
+      <Confetti active={isWinner} />
       <View></View>
       <View className="flex flex-col gap-4">
         <Text className="text-center text-white font-bold text-3xl">
-          Résultats
+          {t("game.results")}
         </Text>
         <View className="flex flex-col gap-2">
-          {Object.entries(score).map(([playerId, playerScore]) => {
-            const player = room.players.find((p) => p.socketId === playerId);
-            return (
-              <TouchableOpacity
-                key={playerId}
-                className="bg-white/10 rounded-3xl p-2 flex flex-row items-center justify-between"
-                disabled={true}
-              >
-                <View className="flex flex-row gap-3 items-center">
-                  <Image
-                    className="w-14 h-14 rounded-full"
-                    source={{ uri: player?.cover }}
-                  />
-                  <Text className="text-white font-semibold text-xl">
-                    {player?.username}
-                  </Text>
-                </View>
-                <View className="mr-2">
-                  <Text className="text-white font-semibold text-xl">
-                    {playerScore} point{playerScore !== 1 ? "s" : ""}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          {Object.entries(score)
+            .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+            .map(([playerId, playerScore], index) => {
+              const player = room.players.find((p) => p.socketId === playerId);
+              if (!player) return null;
+              return (
+                <ScoreRow
+                  key={playerId}
+                  username={player.username}
+                  score={playerScore}
+                  rank={index + 1}
+                />
+              );
+            })}
         </View>
       </View>
-      <Button backgroundColor="info" onClick={() => Alert.alert("Bientôt")}>
-        Rejouer
-      </Button>
+      {isHost ? (
+        <Button backgroundColor="info" onClick={replayGame}>
+          {t("game.replay")}
+        </Button>
+      ) : (
+        <Text className="text-center text-white/50 font-semibold text-lg">
+          {t("game.waitingForHost")}
+        </Text>
+      )}
     </View>
   );
 }

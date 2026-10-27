@@ -1,0 +1,40 @@
+name: Typecheck
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install shared dependencies
+        run: bun install
+        working-directory: shared
+
+      - name: Install server dependencies
+        run: bun install
+        working-directory: server
+
+      - name: Install mobile dependencies
+        run: bun install
+        working-directory: mobile
+
+      - name: Typecheck shared
+        run: bun run typecheck
+        working-directory: shared
+
+      - name: Typecheck server
+        run: bun run typecheck
+        working-directory: server
+
+      - name: Typecheck mobile
+        run: bun run typecheck
+        working-directory: mobile

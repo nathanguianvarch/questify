@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "baseUrl": ".",
+    "strict": true,
+    "rootDir": "..",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "shared": ["../shared/src"]
     }
   }
