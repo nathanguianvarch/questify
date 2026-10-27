@@ -1,0 +1,1 @@
+export const musicKitApiUrl = "https://api.music.apple.com/v1"

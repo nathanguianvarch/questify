@@ -6,6 +6,7 @@
   "scripts": {
     "mobile": "cd mobile && bun run start",
     "server": "cd server && bun run dev",
-    "dev": "concurrently \"bun run mobile\" \"bun run server\""
+    "dev": "concurrently \"bun run mobile\" \"bun run server\"",
+    "typecheck": "cd shared && bun run typecheck && cd ../server && bun run typecheck && cd ../mobile && bun run typecheck"
   }
 }

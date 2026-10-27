@@ -1,4 +1,4 @@
-import { TextInput } from "react-native";
+import { KeyboardTypeOptions, TextInput } from "react-native";
 
 export default function Input({
   value,
@@ -7,13 +7,19 @@ export default function Input({
   maxLength,
   onChangeText,
   className,
+  autoFocus,
+  autoCorrect,
+  onSubmitEditing,
 }: {
   value: string;
   placeholder?: string;
-  keyboard?: "numeric";
+  keyboard?: KeyboardTypeOptions;
   maxLength?: number;
   className?: string;
   onChangeText: (text: string) => void;
+  autoFocus?: boolean;
+  autoCorrect?: boolean;
+  onSubmitEditing?: () => void;
 }) {
   return (
     <TextInput
@@ -22,8 +28,10 @@ export default function Input({
       value={value}
       maxLength={maxLength}
       placeholder={placeholder}
-      keyboardType="numeric"
-      inputMode="numeric"
+      keyboardType={keyboard}
+      autoFocus={autoFocus}
+      autoCorrect={autoCorrect}
+      onSubmitEditing={onSubmitEditing}
     ></TextInput>
   );
 }

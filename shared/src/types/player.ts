@@ -1,25 +1,10 @@
 import { Artist, Track } from "./game";
 
 export type Player = {
-  socketId: string;
-  email: string;
+  socketId?: string;
   username: string;
-  cover: string;
-  playerStats?: SpotifyPlayerStats;
+  cover?: string;
 };
-
-export type SpotifyPlayerStats = {
-  topArtists: {
-    longTerm: AnswerArtist[];
-    mediumTerm: AnswerArtist[];
-    shortTerm: AnswerArtist[];
-  };
-  topTracks: {
-    longTerm: AnswerTrack[];
-    mediumTerm: AnswerTrack[];
-    shortTerm: AnswerTrack[];
-  };
-}
 
 export type AnswerArtist = Artist & {
   type: "artist";

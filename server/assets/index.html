@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Questify API</title>
+  <meta name="description" content="Serveur API de Questify, le blindtest multijoueur en temps réel.">
+  <link rel="icon" type="image/png" href="/assets/icon.png">
+  <style>
+    :root {
+      --primary: #00D560;
+      --background: #000000;
+      --surface: #141414;
+      --text: #FFFFFF;
+      --muted: rgba(255, 255, 255, 0.55);
+      --border: rgba(255, 255, 255, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(600px circle at 50% 0%, rgba(0, 213, 96, 0.18), transparent 70%),
+        var(--background);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 28px;
+      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+    }
+    .logo {
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    p {
+      margin-top: 12px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 28px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      background: rgba(0, 213, 96, 0.1);
+      border: 1px solid rgba(0, 213, 96, 0.25);
+      border-radius: 999px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="logo" src="/assets/icon.png" alt="Questify">
+    <h1>Questify API</h1>
+    <p>Ceci est le serveur API de Questify, le blindtest multijoueur en temps réel.</p>
+    <div class="status"><span class="dot"></span>Serveur en ligne</div>
+  </main>
+</body>
+</html>

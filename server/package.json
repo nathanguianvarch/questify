@@ -5,8 +5,9 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "bun --inspect --watch src/index.ts",
-    "build": "tsc --outDir dist",
-    "start": "bun dist/server/src/index.js"
+    "build": "bun build src/index.ts --outdir dist --target bun --packages external",
+    "start": "bun dist/index.js",
+    "typecheck": "bun check"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -16,8 +17,7 @@
   },
   "devDependencies": {
     "@types/express": "5.0.3",
-    "tsx": "4.20.4",
-    "typescript": "5.9.2"
+    "tsx": "4.20.4"
   },
   "tsup": {
     "entry": [

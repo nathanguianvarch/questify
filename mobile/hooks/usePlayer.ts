@@ -2,7 +2,11 @@ import { PlayerStore } from '@/types/player';
 import { create } from 'zustand';
 
 export const usePlayer = create<PlayerStore>((set) => ({
-  player: null,
+  player: {
+    socketId: "",
+    username: "",
+    cover: "",
+  },
   setPlayer: (player) =>
     set({
       player,
@@ -14,10 +18,5 @@ export const usePlayer = create<PlayerStore>((set) => ({
         ? { ...state.player, ...partialPlayer }
         : state.player,
     })),
-
-  clearPlayer: () =>
-    set({
-      player: null,
-    }),
 }));
 
